@@ -1,3 +1,5 @@
+#pragma once
+
 #include <glad/glad.h>
 #include "VBO.h"
 #include "VBO_layout.h"

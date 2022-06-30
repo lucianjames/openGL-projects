@@ -6,7 +6,7 @@ class VBO {
 private:
     unsigned int ID;
 public:
-    VBO(std::vector<float> vertices, unsigned int size);
     ~VBO();
+    void generate(std::vector<float> vertices, unsigned int size);
     void bind();
 };

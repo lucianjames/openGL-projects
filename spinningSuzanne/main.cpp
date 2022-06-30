@@ -14,6 +14,8 @@
 #include "VAO.h"
 #include "EBO.h"
 
+#include "model.h"
+
 int main(){
     // === Set up a GLFW window, and init GLAD ===
     char windowName[] = "3D spinning cube";
@@ -47,13 +49,17 @@ int main(){
         1, 6, 2
     };
 
+    model test;
+
     // === Set up VBO, VBO layout, VAO, EBO ===
-    VBO vertexBuffer(vertices, sizeof(float) * vertices.size()); // The VBO stores the vertex data to be sent to the GPU
+    VBO vertexBuffer; // The VBO stores the vertex data to be sent to the GPU
+    vertexBuffer.generate(vertices, sizeof(float) * vertices.size());
     VBO_layout layout; // This is a struct that defines the layout of the VBO
     layout.pushFloat(3); // Position data
     layout.pushFloat(3); // Color data
     VAO vertexArray; // The VAO stores all of the state needed to supply vertex data
-    EBO indexBuffer(indices, sizeof(unsigned int) * indices.size()); // The EBO stores the indices to be sent to the GPU
+    EBO indexBuffer; // The EBO stores the indices to be sent to the GPU
+    indexBuffer.generate(indices, sizeof(unsigned int) * indices.size()); 
     vertexArray.addBuffer(vertexBuffer, layout);
 
     // === Create shader program ===

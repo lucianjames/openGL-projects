@@ -21,6 +21,7 @@ set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/VBO_layout.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/VAO.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/EBO.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/model.h
 )
 
 add_executable(main ${SOURCE}) # Add the source files to the executable
