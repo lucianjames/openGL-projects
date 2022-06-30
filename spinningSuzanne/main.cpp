@@ -21,7 +21,7 @@ int main(){
     glEnable(GL_DEPTH_TEST);
 
     // === Defining the geometry ===
-    float vertices[] = { // This is a cube
+    std::vector<float> vertices = { // This is a cube
      0.5f,  0.5f, 0.5f,  1.0f, 0.0f, 0.0f, // top right
      0.5f, -0.5f, 0.5f,  0.0f, 1.0f, 0.0f, // bottom right
     -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, // bottom left
@@ -32,7 +32,7 @@ int main(){
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f, // bottom left
     -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 0.0f, // top left 
     };
-    unsigned int indices[] = {  // note that we start from 0!
+    std::vector<unsigned int> indices = {  // note that we start from 0!
         0, 1, 3,
         1, 2, 3,
         4, 5, 7,
@@ -48,12 +48,12 @@ int main(){
     };
 
     // === Set up VBO, VBO layout, VAO, EBO ===
-    VBO vertexBuffer(vertices, sizeof(vertices)); // The VBO stores the vertex data to be sent to the GPU
+    VBO vertexBuffer(vertices, sizeof(float) * vertices.size()); // The VBO stores the vertex data to be sent to the GPU
     VBO_layout layout; // This is a struct that defines the layout of the VBO
     layout.pushFloat(3); // Position data
     layout.pushFloat(3); // Color data
     VAO vertexArray; // The VAO stores all of the state needed to supply vertex data
-    EBO indexBuffer(indices, sizeof(indices)); // The EBO stores the indices to be sent to the GPU
+    EBO indexBuffer(indices, sizeof(unsigned int) * indices.size()); // The EBO stores the indices to be sent to the GPU
     vertexArray.addBuffer(vertexBuffer, layout);
 
     // === Create shader program ===
