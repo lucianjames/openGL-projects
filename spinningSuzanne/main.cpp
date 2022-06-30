@@ -49,18 +49,19 @@ int main(){
         1, 6, 2
     };
 
-    model test;
+    model cube;
+    cube.vertices = vertices;
+    cube.m_layout.pushFloat(3); // position
+    cube.m_layout.pushFloat(3); // colour
+    cube.indices = indices;
+    cube.generate();
 
-    // === Set up VBO, VBO layout, VAO, EBO ===
-    VBO vertexBuffer; // The VBO stores the vertex data to be sent to the GPU
-    vertexBuffer.generate(vertices, sizeof(float) * vertices.size());
-    VBO_layout layout; // This is a struct that defines the layout of the VBO
-    layout.pushFloat(3); // Position data
-    layout.pushFloat(3); // Color data
-    VAO vertexArray; // The VAO stores all of the state needed to supply vertex data
-    EBO indexBuffer; // The EBO stores the indices to be sent to the GPU
-    indexBuffer.generate(indices, sizeof(unsigned int) * indices.size()); 
-    vertexArray.addBuffer(vertexBuffer, layout);
+    model cube2;
+    cube2.vertices = vertices;
+    cube2.m_layout.pushFloat(3); // position
+    cube2.m_layout.pushFloat(3); // colour
+    cube2.indices = indices;
+    cube2.generate();
 
     // === Create shader program ===
     shaderClass shader("GLSL/shader.vert.glsl", "GLSL/shader.frag.glsl");
@@ -74,6 +75,11 @@ int main(){
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f)); // note that we're translating the scene in the reverse direction of where we want to move
     glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)m_viewport[2] / (float)m_viewport[3], 0.1f, 100.0f); // Define the perspective projection matrix
 
+
+
+    glm::mat4 model2 = glm::mat4(1.0f); // Test purposes
+    model2 = glm::rotate(model2, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
     // === Main loop === //
     while (!glfwWindowShouldClose(window)){
         // === Unbind/reset stuff (best practice or something) ===
@@ -85,18 +91,22 @@ int main(){
         // === Render ===
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f); // Set the background color
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the color and depth buffer
-        vertexArray.bind(); // Bind the VAO
-        indexBuffer.bind(); // Bind the EBO
+        
         shader.use(); // Use the shader program
-        // Transforms:
+        // Do transform stuff for shader:
         model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.25f, 0.5f, 0.75f)); // Rotate the square
         glGetIntegerv(GL_VIEWPORT, m_viewport); // Get the viewport size (maybe code to only do upon resize?)
         perspective = glm::perspective(glm::radians(45.0f), (float)m_viewport[2] / (float)m_viewport[3], 0.1f, 100.0f); // Update the perspective projection matrix
         shader.setUniformMat4fv("model", glm::value_ptr(model)); // Set the model matrix
         shader.setUniformMat4fv("view", glm::value_ptr(view)); // Set the view matrix
         shader.setUniformMat4fv("projection", glm::value_ptr(perspective)); // Set the projection matrix
+
         // Actualy draw some triangles
-        glDrawElements(GL_TRIANGLES, indexBuffer.getSize(), GL_UNSIGNED_INT, nullptr);
+        cube.draw();
+
+        shader.use(); // Use the shader program
+        shader.setUniformMat4fv("model", glm::value_ptr(model2)); // Set the model matrix
+        cube2.draw();
 
         // === Swap buffers ===
         glfwSwapBuffers(window);
