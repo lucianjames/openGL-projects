@@ -10,22 +10,18 @@ private:
     EBO m_ebo;
 
 public:
-    VBO_layout m_layout; // LAYOUT MUST BE PUSHED!!! DONT FORGET!!!
-    std::vector<float> vertices;
-    std::vector<unsigned int> indices;
-
-    void generate(){
-        m_vbo.generate(vertices, sizeof(float) * vertices.size());
-        m_vao.addBuffer(m_vbo, m_layout);
-        m_ebo.generate(indices, sizeof(unsigned int) * indices.size());
+    model(std::vector<float> vertices, std::vector<unsigned int> indices, VBO_layout layout){
+        this->m_vbo.generate(vertices, sizeof(float) * vertices.size());
+        this->m_vao.addBuffer(this->m_vbo, layout);
+        this->m_ebo.generate(indices, sizeof(unsigned int) * indices.size());
         glBindVertexArray(0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     void draw(){
-        m_vao.bind();
-        m_ebo.bind();
-        glDrawElements(GL_TRIANGLES, m_ebo.getSize(), GL_UNSIGNED_INT, nullptr);
+        this->m_vao.bind();
+        this->m_ebo.bind();
+        glDrawElements(GL_TRIANGLES, this->m_ebo.getSize(), GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }

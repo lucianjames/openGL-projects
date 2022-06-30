@@ -18,12 +18,12 @@
 
 int main(){
     // === Set up a GLFW window, and init GLAD ===
-    char windowName[] = "3D spinning cube";
+    char windowName[] = "3D spinning cubes";
     GLFWwindow* window = glInitHelper::setup(windowName); // Setup function exists just to move all the boilerplate crap out of sight
     glEnable(GL_DEPTH_TEST);
 
     // === Defining the geometry ===
-    std::vector<float> vertices = { // This is a cube
+    std::vector<float> cubeVertices = { // This is a cube
      0.5f,  0.5f, 0.5f,  1.0f, 0.0f, 0.0f, // top right
      0.5f, -0.5f, 0.5f,  0.0f, 1.0f, 0.0f, // bottom right
     -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, // bottom left
@@ -34,7 +34,7 @@ int main(){
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f, // bottom left
     -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 0.0f, // top left 
     };
-    std::vector<unsigned int> indices = {  // note that we start from 0!
+    std::vector<unsigned int> cubeIndices = {  // note that we start from 0!
         0, 1, 3,
         1, 2, 3,
         4, 5, 7,
@@ -49,19 +49,21 @@ int main(){
         1, 6, 2
     };
 
-    model cube;
-    cube.vertices = vertices;
-    cube.m_layout.pushFloat(3); // position
-    cube.m_layout.pushFloat(3); // colour
-    cube.indices = indices;
-    cube.generate();
+    VBO_layout cubeVertLayout;
+    cubeVertLayout.pushFloat(3); // position
+    cubeVertLayout.pushFloat(3); // color
 
-    model cube2;
-    cube2.vertices = vertices;
-    cube2.m_layout.pushFloat(3); // position
-    cube2.m_layout.pushFloat(3); // colour
-    cube2.indices = indices;
-    cube2.generate();
+    model cube(
+        cubeVertices, // vertices
+        cubeIndices, // indices
+        cubeVertLayout // layout
+    );
+
+    model cube2(
+        cubeVertices, // vertices
+        cubeIndices, // indices
+        cubeVertLayout // layout
+    );
 
     // === Create shader program ===
     shaderClass shader("GLSL/shader.vert.glsl", "GLSL/shader.frag.glsl");
