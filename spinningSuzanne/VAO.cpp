@@ -4,19 +4,13 @@ VAO::VAO(){
     glGenVertexArrays(1, &ID);
 }
 
-
-
 VAO::~VAO(){
     glDeleteVertexArrays(1, &ID);
 }
 
-
-
 void VAO::bind(){
     glBindVertexArray(ID);
 }
-
-
 
 void VAO::addBuffer(VBO& vbo, const VBO_layout& layout){
     this->bind(); // Bind the VAO

@@ -22,8 +22,6 @@ unsigned int shaderClass::compileShader(unsigned int type, const std::string& so
     return id; // Return the shader id
 }
 
-
-
 // Constructor reads and builds the shader
 shaderClass::shaderClass(const char* vertexPath, const char* fragmentPath) {
     // Stuff for debugging:
@@ -81,14 +79,10 @@ shaderClass::shaderClass(const char* vertexPath, const char* fragmentPath) {
     glDeleteShader(fs);
 }
 
-
-
 // Use/activate the shader
 void shaderClass::use() const {
     glUseProgram(ID);
 }
-
-
 
 // All the uniform setting shit:
 // Floats:
