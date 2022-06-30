@@ -93,19 +93,19 @@ int main(){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the color and depth buffer
         
         shader.use(); // Use the shader program
-        // Do transform stuff for shader:
+        // Transforming the transforms:
         model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.25f, 0.5f, 0.75f)); // Rotate the square
         glGetIntegerv(GL_VIEWPORT, m_viewport); // Get the viewport size (maybe code to only do upon resize?)
         perspective = glm::perspective(glm::radians(45.0f), (float)m_viewport[2] / (float)m_viewport[3], 0.1f, 100.0f); // Update the perspective projection matrix
+        // Sending transforms to the shader program:
         shader.setUniformMat4fv("model", glm::value_ptr(model)); // Set the model matrix
         shader.setUniformMat4fv("view", glm::value_ptr(view)); // Set the view matrix
         shader.setUniformMat4fv("projection", glm::value_ptr(perspective)); // Set the projection matrix
 
         // Actualy draw some triangles
         cube.draw();
-
-        shader.use(); // Use the shader program
-        shader.setUniformMat4fv("model", glm::value_ptr(model2)); // Set the model matrix
+        // Draw the second set of triangles :)
+        shader.setUniformMat4fv("model", glm::value_ptr(model2)); // Different model matrix, so its not the same as the first one
         cube2.draw();
 
         // === Swap buffers ===
