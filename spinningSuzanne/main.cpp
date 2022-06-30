@@ -69,16 +69,16 @@ int main(){
     shaderClass shader("GLSL/shader.vert.glsl", "GLSL/shader.frag.glsl");
 
     // === Define transforms ===
+    // perspective/view transforms:
     int m_viewport[4];
     glGetIntegerv(GL_VIEWPORT, m_viewport);
-    glm::mat4 model = glm::mat4(1.0f); // Define a model matrix for the square
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
+    glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)m_viewport[2] / (float)m_viewport[3], 0.1f, 100.0f); // Define the perspective projection matrix
     glm::mat4 view = glm::mat4(1.0f); // Define a view matrix for the scene
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f)); // note that we're translating the scene in the reverse direction of where we want to move
-    glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)m_viewport[2] / (float)m_viewport[3], 0.1f, 100.0f); // Define the perspective projection matrix
-
-
-
+    // First cube:
+    glm::mat4 model = glm::mat4(1.0f); // Define a model matrix for the square
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
+    // Second cube:
     glm::mat4 model2 = glm::mat4(1.0f); // Test purposes
     model2 = glm::rotate(model2, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
