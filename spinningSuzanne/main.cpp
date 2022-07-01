@@ -15,11 +15,14 @@
 #include "EBO.h"
 #include "model.h"
 
+#include "obj.h"
+
 int main(){
     // === Set up a GLFW window, and init GLAD ===
     char windowName[] = "3D spinning cubes";
     GLFWwindow* window = glInitHelper::setup(windowName); // Setup function exists just to move all the boilerplate crap out of sight
     glEnable(GL_DEPTH_TEST); // Enable depth testing - emsures that objects are drawn in the right order
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe for model debugging
 
     // === Defining the geometry ===
     std::vector<float> cubeVertices = { // This is a cube
@@ -48,9 +51,18 @@ int main(){
         1, 6, 2
     };
 
+    obj suzanne("../suzanne.obj");
+    suzanne.readPositionData();
+    suzanne.readPositionIndices();
+
+
+    cubeVertices = suzanne.positions;
+    cubeIndices = suzanne.positionIndices;
+
+
     VBO_layout cubeVertLayout;
     cubeVertLayout.pushFloat(3); // position
-    cubeVertLayout.pushFloat(3); // color
+    //cubeVertLayout.pushFloat(3); // color
 
     model cube(
         cubeVertices, // vertices
@@ -58,13 +70,6 @@ int main(){
         cubeVertLayout // layout
     );
     cube.m_shader.createShader("GLSL/shader.vert.glsl", "GLSL/shader.frag.glsl");
-
-    model cube2(
-        cubeVertices, // vertices
-        cubeIndices, // indices
-        cubeVertLayout // layout
-    );
-    cube2.m_shader.createShader("GLSL/shader.vert.glsl", "GLSL/shader.frag.glsl");
     
     // === Define transforms ===
     // === perspective/view transforms:
@@ -75,8 +80,7 @@ int main(){
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f)); // note that we're translating the scene in the reverse direction of where we want to move
     // Only need to set this transform once (camera never moves in this example), so lets do it now outside of the loop:
     cube.setViewT(view);
-    cube2.setViewT(view);
-    
+
     // === First cube:
     glm::mat4 model = glm::mat4(1.0f); // Define a model matrix for the square
     model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
@@ -101,17 +105,11 @@ int main(){
         glGetIntegerv(GL_VIEWPORT, m_viewport); // Get the viewport size (maybe code to only do upon resize? - would required messy global variables)
         perspective = glm::perspective(glm::radians(45.0f), (float)m_viewport[2] / (float)m_viewport[3], 0.1f, 100.0f); // Update the perspective projection matrix
         cube.setProjectionT(perspective); // Set the perspective projection matrix
-        cube2.setProjectionT(perspective); // Set the perspective projection matrix
 
         // Rotate and draw the first cube :D
-        model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.25f, 0.5f, 0.75f)); // Rotate the cube
+        model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.25f, 0.0f, 0.1f)); // Rotate the cube
         cube.setModelT(model); // Set the model matrix
         cube.draw();
-        
-        // Rotate and draw the second cube :)
-        model2 = glm::rotate(model2, glm::radians(1.0f), glm::vec3(-0.25f, -0.5f, 0.75f)); // Rotate the cube differently
-        cube2.setModelT(model2); // Set the model matrix
-        cube2.draw();
 
         // === Swap buffers ===
         glfwSwapBuffers(window);

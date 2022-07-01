@@ -1,10 +1,3 @@
-// This exists to test an OBJ file reader.
-// Main functionality:
-// 1 - Read postion, normal, texCoord, and index data from an OBJ file.
-// 2 - Arrange the data into a vertex buffer and index buffer.
-// 3 - Create a vertex buffer layout object.
-// 4 - Be able to integrate this with the pre-existing classes in the other files.
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -80,38 +73,3 @@ public: // Make everything public  /////// !!!ONLY FOR NOW!!! ///////
     }
 
 };
-
-
-int main(){
-    obj object("../test.obj");
-
-    // Reading the data:
-    std::cout << "Reading data..." << std::endl;
-    object.readPositionData();
-    object.readPositionIndices();
-    std::cout << "Data read." << std::endl;
-
-    // Display the data:
-    std::cout << "Positions: " << std::endl;
-    for(int i = 0; i < object.positions.size(); i++){
-        std::cout << object.positions[i] << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "Normals: " << std::endl;
-    for(int i = 0; i < object.normals.size(); i++){
-        std::cout << object.normals[i] << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "TexCoords: " << std::endl;
-    for(int i = 0; i < object.texCoords.size(); i++){
-        std::cout << object.texCoords[i] << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "PositionIndices: " << std::endl;
-    for(int i = 0; i < object.positionIndices.size(); i++){
-        std::cout << object.positionIndices[i] << " ";
-    }
-    std::cout << std::endl;
-
-    return 0;
-}
