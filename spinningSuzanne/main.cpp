@@ -22,7 +22,7 @@ int main(){
     char windowName[] = "3D spinning suzanne";
     GLFWwindow* window = glInitHelper::setup(windowName); // Setup function exists just to move all the boilerplate crap out of sight
     glEnable(GL_DEPTH_TEST); // Enable depth testing - emsures that objects are drawn in the right order
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe for model debugging
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe for model debugging
 
     // === Defining the geometry ===
     std::vector<float> suzanneVertices = { // This is a suzanne
@@ -51,7 +51,7 @@ int main(){
         1, 6, 2
     };
 
-    obj suzanneObj("../suzanne.obj");
+    obj suzanneObj("../test.obj");
     suzanneObj.readPositionData();
     suzanneObj.readPositionIndices();
     suzanneObj.createVBO();
