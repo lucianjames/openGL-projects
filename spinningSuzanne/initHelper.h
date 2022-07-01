@@ -32,7 +32,7 @@ namespace glInitHelper{
         }
     }
 
-    GLFWwindow* setup(char name[]){
+    GLFWwindow* setup(char name[]){ // This is the main function you would generally use out of this file
         GLFWINIT();
         GLFWwindow* window = CREATEGLFWWINDOW(name);
         INITGLAD();
