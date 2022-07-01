@@ -10,7 +10,7 @@ public:
     unsigned int ID; // Shader ID
 
     unsigned int compileShader(unsigned int type, const std::string& source); // Compiles a shader
-    shaderClass(const char* vertexPath, const char* fragmentPath); // Constructor reads and builds the shader
+    void createShader(const char* vertexPath, const char* fragmentPath); // Creates the shader from files
     void use() const; // Use/activate the shader
     
     // Uniform setting functions:

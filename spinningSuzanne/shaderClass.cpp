@@ -23,7 +23,7 @@ unsigned int shaderClass::compileShader(unsigned int type, const std::string& so
 }
 
 // Constructor reads and builds the shader
-shaderClass::shaderClass(const char* vertexPath, const char* fragmentPath) {
+void shaderClass::createShader(const char* vertexPath, const char* fragmentPath) {
     // Stuff for debugging:
     int success;
     char infoLog[512];
