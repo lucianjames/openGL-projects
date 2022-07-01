@@ -36,7 +36,8 @@ int main(){
         suzanneObj.layout // layout
     );
     suzanne.m_shader.createShader("GLSL/shader.vert.glsl", "GLSL/shader.frag.glsl");
-    
+    suzanne.m_shader.setUniform3f("lightPos", 1.0f, 10.0f, 2.0f);
+
     // === Define transforms ===
     // === perspective/view transforms:
     int m_viewport[4]; // Stores the viewport size
