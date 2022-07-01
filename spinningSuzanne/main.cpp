@@ -57,17 +57,15 @@ int main(){
         cubeIndices, // indices
         cubeVertLayout // layout
     );
+    cube.m_shader.createShader("GLSL/shader.vert.glsl", "GLSL/shader.frag.glsl");
 
     model cube2(
         cubeVertices, // vertices
         cubeIndices, // indices
         cubeVertLayout // layout
     );
-
-    // === Create shader program ===
-    shaderClass shader;
-    shader.createShader("GLSL/shader.vert.glsl", "GLSL/shader.frag.glsl");
-
+    cube2.m_shader.createShader("GLSL/shader.vert.glsl", "GLSL/shader.frag.glsl");
+    
     // === Define transforms ===
     // === perspective/view transforms:
     int m_viewport[4];
@@ -75,9 +73,9 @@ int main(){
     glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)m_viewport[2] / (float)m_viewport[3], 0.1f, 100.0f); // Define the perspective projection matrix
     glm::mat4 view = glm::mat4(1.0f); // Define a view matrix for the scene
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f)); // note that we're translating the scene in the reverse direction of where we want to move
-    // Only need to set these transforms once, so lets do it now:
-    shader.use();
-    shader.setUniformMat4fv("view", glm::value_ptr(view)); // Set the view matrix
+    // Only need to set this transform once (camera never moves in this example), so lets do it now outside of the loop:
+    cube.setViewT(view);
+    cube2.setViewT(view);
     // === First cube:
     glm::mat4 model = glm::mat4(1.0f); // Define a model matrix for the square
     model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
@@ -96,20 +94,20 @@ int main(){
         // === Render ===
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f); // Set the background color
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the color and depth buffer
-        
-        shader.use(); // Use the shader program
+
         glGetIntegerv(GL_VIEWPORT, m_viewport); // Get the viewport size (maybe code to only do upon resize?)
         perspective = glm::perspective(glm::radians(45.0f), (float)m_viewport[2] / (float)m_viewport[3], 0.1f, 100.0f); // Update the perspective projection matrix
-        shader.setUniformMat4fv("projection", glm::value_ptr(perspective)); // Set the projection matrix
+        cube.setProjectionT(perspective); // Set the perspective projection matrix
+        cube2.setProjectionT(perspective); // Set the perspective projection matrix
 
         // Rotate and draw the first cube :D
         model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.25f, 0.5f, 0.75f)); // Rotate the cube
-        shader.setUniformMat4fv("model", glm::value_ptr(model)); // Set the model matrix
+        cube.setModelT(model); // Set the model matrix
         cube.draw();
         
         // Rotate and draw the second cube :)
         model2 = glm::rotate(model2, glm::radians(1.0f), glm::vec3(-0.9f, 0.2f, 0.7f)); // Rotate the cube differently
-        shader.setUniformMat4fv("model", glm::value_ptr(model2)); // Different model matrix, so its not the same as the first one
+        cube2.setModelT(model2); // Set the model matrix
         cube2.draw();
 
         // === Swap buffers ===
