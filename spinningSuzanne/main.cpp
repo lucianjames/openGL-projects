@@ -25,9 +25,8 @@ int main(){
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe for model debugging
 
     obj suzanneObj("../suzanne.obj");
-    suzanneObj.readIndexData();
     suzanneObj.readPositionData();
-    suzanneObj.readNormalData();
+    suzanneObj.readPositionIndices();
     suzanneObj.createVBO();
 
     model suzanne(
@@ -68,7 +67,7 @@ int main(){
         glGetIntegerv(GL_VIEWPORT, m_viewport); // Get the viewport size (maybe code to only do upon resize? - would required messy global variables)
         perspective = glm::perspective(glm::radians(45.0f), (float)m_viewport[2] / (float)m_viewport[3], 0.1f, 100.0f); // Update the perspective projection matrix
         suzanne.setProjectionT(perspective); // Set the perspective projection matrix
-
+        
         // Rotate and draw the first suzanne :D
         model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.1f, 1.0f, 0.2f)); // Rotate the suzanne
         suzanne.setModelT(model); // Set the model matrix
