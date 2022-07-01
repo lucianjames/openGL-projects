@@ -10,4 +10,5 @@ void main(){
     vec3 diffuse = diff * vec3(0.5, 0.5, 0.5);
     vec3 result = diffuse + vec3(0.5, 0.5, 0.5);
     FragColor = vec4(result, 1.0);
+    FragColor = vec4(normal, 1.0);
 }
