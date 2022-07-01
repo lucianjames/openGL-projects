@@ -25,8 +25,9 @@ int main(){
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe for model debugging
 
     obj suzanneObj("../suzanne.obj");
+    suzanneObj.readIndexData();
     suzanneObj.readPositionData();
-    suzanneObj.readPositionIndices();
+    suzanneObj.readNormalData();
     suzanneObj.createVBO();
 
     model suzanne(
