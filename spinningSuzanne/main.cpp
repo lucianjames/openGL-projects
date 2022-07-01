@@ -24,34 +24,7 @@ int main(){
     glEnable(GL_DEPTH_TEST); // Enable depth testing - emsures that objects are drawn in the right order
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe for model debugging
 
-    // === Defining the geometry ===
-    std::vector<float> suzanneVertices = { // This is a suzanne
-     0.5f,  0.5f, 0.5f,  1.0f, 0.0f, 0.0f, // top right
-     0.5f, -0.5f, 0.5f,  0.0f, 1.0f, 0.0f, // bottom right
-    -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, // bottom left
-    -0.5f,  0.5f, 0.5f,  0.0f, 0.0f, 0.0f, // top left 
-
-     0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f, // top right
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, // bottom right
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f, // bottom left
-    -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 0.0f, // top left 
-    };
-    std::vector<unsigned int> suzanneIndices = {  // note that we start from 0!
-        0, 1, 3,
-        1, 2, 3,
-        4, 5, 7,
-        5, 6, 7,
-        0, 4, 1,
-        1, 4, 5,
-        2, 6, 3,
-        3, 6, 7,
-        0, 4, 7,
-        0, 7, 3,
-        1, 5, 6,
-        1, 6, 2
-    };
-
-    obj suzanneObj("../test.obj");
+    obj suzanneObj("../suzanne.obj");
     suzanneObj.readPositionData();
     suzanneObj.readPositionIndices();
     suzanneObj.createVBO();
