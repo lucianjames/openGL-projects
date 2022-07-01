@@ -79,10 +79,6 @@ public: // Make everything public  /////// !!!ONLY FOR NOW!!! ///////
         }
     }
 
-    void readColourData(){
-
-    }
-
     void createVBO(){
         // We only have position data right now, so we can just use that.
         this->VBO.clear();
