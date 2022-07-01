@@ -36,7 +36,7 @@ public: // Make everything public  /////// !!!ONLY FOR NOW!!! ///////
     std::vector<float> texCoords;
     
     // These will actually be used in openGL:
-    std::vector<float> vertices; // Combines the position, normal, and texCoord data into one vector which can be used to create a vertex buffer.
+    std::vector<float> VBO; // Vertex buffer info
     std::vector<unsigned int> positionIndices; // Indices of the position data.
     VBO_layout layout; // This is the layout of the vertex buffer.
 
@@ -74,7 +74,7 @@ public: // Make everything public  /////// !!!ONLY FOR NOW!!! ///////
     }
 
     void fixPositionIndices(){ // Subtract one from every single index, because OBJ is a retarded file format
-        for(int i : this->positionIndices){
+        for(auto& i : this->positionIndices){
             i--;
         }
     }
@@ -85,8 +85,8 @@ public: // Make everything public  /////// !!!ONLY FOR NOW!!! ///////
 
     void createVBO(){
         // We only have position data right now, so we can just use that.
-        this->vertices.clear();
-        this->vertices = this->positions;
+        this->VBO.clear();
+        this->VBO = this->positions;
         this->layout.pushFloat(3);
     }
 

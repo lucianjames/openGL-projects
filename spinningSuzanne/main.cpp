@@ -19,13 +19,13 @@
 
 int main(){
     // === Set up a GLFW window, and init GLAD ===
-    char windowName[] = "3D spinning cubes";
+    char windowName[] = "3D spinning suzanne";
     GLFWwindow* window = glInitHelper::setup(windowName); // Setup function exists just to move all the boilerplate crap out of sight
     glEnable(GL_DEPTH_TEST); // Enable depth testing - emsures that objects are drawn in the right order
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe for model debugging
 
     // === Defining the geometry ===
-    std::vector<float> cubeVertices = { // This is a cube
+    std::vector<float> suzanneVertices = { // This is a suzanne
      0.5f,  0.5f, 0.5f,  1.0f, 0.0f, 0.0f, // top right
      0.5f, -0.5f, 0.5f,  0.0f, 1.0f, 0.0f, // bottom right
     -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, // bottom left
@@ -36,7 +36,7 @@ int main(){
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f, // bottom left
     -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 0.0f, // top left 
     };
-    std::vector<unsigned int> cubeIndices = {  // note that we start from 0!
+    std::vector<unsigned int> suzanneIndices = {  // note that we start from 0!
         0, 1, 3,
         1, 2, 3,
         4, 5, 7,
@@ -51,25 +51,17 @@ int main(){
         1, 6, 2
     };
 
-    obj suzanne("../suzanne.obj");
-    suzanne.readPositionData();
-    suzanne.readPositionIndices();
+    obj suzanneObj("../suzanne.obj");
+    suzanneObj.readPositionData();
+    suzanneObj.readPositionIndices();
+    suzanneObj.createVBO();
 
-
-    cubeVertices = suzanne.positions;
-    cubeIndices = suzanne.positionIndices;
-
-
-    VBO_layout cubeVertLayout;
-    cubeVertLayout.pushFloat(3); // position
-    //cubeVertLayout.pushFloat(3); // color
-
-    model cube(
-        cubeVertices, // vertices
-        cubeIndices, // indices
-        cubeVertLayout // layout
+    model suzanne(
+        suzanneObj.VBO, // vertices
+        suzanneObj.positionIndices, // indices
+        suzanneObj.layout // layout
     );
-    cube.m_shader.createShader("GLSL/shader.vert.glsl", "GLSL/shader.frag.glsl");
+    suzanne.m_shader.createShader("GLSL/shader.vert.glsl", "GLSL/shader.frag.glsl");
     
     // === Define transforms ===
     // === perspective/view transforms:
@@ -79,15 +71,11 @@ int main(){
     glm::mat4 view = glm::mat4(1.0f); // Define a view matrix for the scene
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f)); // note that we're translating the scene in the reverse direction of where we want to move
     // Only need to set this transform once (camera never moves in this example), so lets do it now outside of the loop:
-    cube.setViewT(view);
+    suzanne.setViewT(view);
 
-    // === First cube:
+    // Monkey spin
     glm::mat4 model = glm::mat4(1.0f); // Define a model matrix for the square
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
-    
-    // === Second cube:
-    glm::mat4 model2 = glm::mat4(1.0f); // Test purposes
-    model2 = glm::rotate(model2, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
     // === Main loop === //
     while (!glfwWindowShouldClose(window)){
@@ -101,15 +89,15 @@ int main(){
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f); // Set the background color
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the color and depth buffer
 
-        // Set up the perspective projection matrix to ensure that the cube is rendered correctly if the window is resized:
+        // Set up the perspective projection matrix to ensure that the suzanne is rendered correctly if the window is resized:
         glGetIntegerv(GL_VIEWPORT, m_viewport); // Get the viewport size (maybe code to only do upon resize? - would required messy global variables)
         perspective = glm::perspective(glm::radians(45.0f), (float)m_viewport[2] / (float)m_viewport[3], 0.1f, 100.0f); // Update the perspective projection matrix
-        cube.setProjectionT(perspective); // Set the perspective projection matrix
+        suzanne.setProjectionT(perspective); // Set the perspective projection matrix
 
-        // Rotate and draw the first cube :D
-        model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.25f, 0.0f, 0.1f)); // Rotate the cube
-        cube.setModelT(model); // Set the model matrix
-        cube.draw();
+        // Rotate and draw the first suzanne :D
+        model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.1f, 1.0f, 0.2f)); // Rotate the suzanne
+        suzanne.setModelT(model); // Set the model matrix
+        suzanne.draw();
 
         // === Swap buffers ===
         glfwSwapBuffers(window);

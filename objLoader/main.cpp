@@ -35,6 +35,29 @@ void readObjValues(const std::string fileName, const std::string startTag, const
     }
 }
 
+
+void readPositionIndices(const std::string fileName, std::vector<unsigned int>& data){
+    // Clear the data vector.
+    data.clear();
+    std::ifstream file(fileName);
+    std::string line;
+    while(std::getline(file, line)){ // 1: Read a line from the file
+        if(line.substr(0,2) == "f "){ // 2: Check if it starts with the startTag
+            // 3: If so, read the position index data by reading the three ints after ' ' and before '/'.
+            std::stringstream ss(line);
+            std::string token;
+            std::getline(ss, token, ' '); // Skip the token at the beginning because it is not a number that we want.
+            for(int i = 0; i < 3; i++){ // Read the rest of the tokens as ints.
+                std::getline(ss, token, '/'); // Read the next token.
+                unsigned int temp;
+                std::from_chars(token.data(), token.data() + token.size(), temp);
+                data.push_back(temp); // Push back may be slow, i think.
+            }
+        }
+    }
+}
+
+
 class obj{
 public: // Make everything public  /////// !!!ONLY FOR NOW!!! ///////
     // These vectors will have the data read into them:
