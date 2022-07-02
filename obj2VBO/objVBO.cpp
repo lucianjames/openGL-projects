@@ -129,7 +129,7 @@ void objVBO::object::assembleVBO(){
     int vertSize = 3 + 3 + 2; // 3 floats for position, 3 floats for normal, 2 floats for texture coordinate. !!!!!! HARD CODE !!!!!!
     this->VBO.resize(vertSize * indices.size()); // Resize the VBO to the correct size.
     this->EBO.clear();
-    this->EBO.resize(positions.size() / 3); // The number of vertices is the number of positions divided by 3 because each vertex has 3 float values.
+    this->EBO.resize(indices.size()); // Resize the EBO to the correct size.
 
     // !!!!!! HARD CODED - IDEALLY CAN ADAPT IF ANY ATTRIBUTE IS MISSING !!!!!!
     for(int i=0; i < this->VBO.size() / vertSize; i++){
