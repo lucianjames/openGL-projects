@@ -24,7 +24,7 @@ int main(){
     glEnable(GL_DEPTH_TEST); // Enable depth testing - emsures that objects are drawn in the right order
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe for model debugging
 
-    obj suzanneObj("../cubeMod.obj");
+    obj suzanneObj("../cube.obj");
     suzanneObj.readIndexData();
     suzanneObj.readPositionData();
     suzanneObj.readNormalData();

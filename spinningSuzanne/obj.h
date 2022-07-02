@@ -119,11 +119,10 @@ public: // Make everything public  /////// !!!ONLY FOR NOW!!! ///////
             this->VBO[i * 6] = this->positions[i * 3];
             this->VBO[i * 6 + 1] = this->positions[i * 3 + 1];
             this->VBO[i * 6 + 2] = this->positions[i * 3 + 2];
-            this->VBO[i * 6 + 3] = 0.69f; // This dummy data
-            this->VBO[i * 6 + 4] = 0.69f; // This dummy data
-            this->VBO[i * 6 + 5] = 0.69f; // This dummy data
+            this->VBO[i * 6 + 3] = this->normals[i * 3];
+            this->VBO[i * 6 + 4] = this->normals[i * 3 + 1];
+            this->VBO[i * 6 + 5] = this->normals[i * 3 + 2];
         }
-
 
         this->layout.pushFloat(3); // Position data is 3 floats.
         this->layout.pushFloat(3); // Normal data is 3 floats.
