@@ -24,7 +24,7 @@ int main(){
     glEnable(GL_DEPTH_TEST); // Enable depth testing - emsures that objects are drawn in the right order
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe for model debugging
 
-    obj suzanneObj("../suzanne.obj");
+    obj suzanneObj("../cubeMod.obj");
     suzanneObj.readIndexData();
     suzanneObj.readPositionData();
     suzanneObj.readNormalData();
@@ -32,7 +32,7 @@ int main(){
 
     model suzanne(
         suzanneObj.VBO, // vertices
-        suzanneObj.positionIndices, // indices
+        suzanneObj.EBO, // indices
         suzanneObj.layout // layout
     );
     suzanne.m_shader.createShader("GLSL/shader.vert.glsl", "GLSL/shader.frag.glsl");

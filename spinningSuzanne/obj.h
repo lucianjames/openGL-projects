@@ -72,7 +72,7 @@ public: // Make everything public  /////// !!!ONLY FOR NOW!!! ///////
 
     // These will actually be used in openGL:
     std::vector<float> VBO; // Vertex buffer info
-    std::vector<unsigned int> positionIndices; // Indices of the position data.
+    std::vector<unsigned int> EBO; // Indices of the position data.
     VBO_layout layout; // This is the layout of the vertex buffer.
 
     // Information required to load the file:
@@ -105,14 +105,44 @@ public: // Make everything public  /////// !!!ONLY FOR NOW!!! ///////
         // First lets set the index data up
         for(int i = 0; i < this->indices.size(); i++){
             const auto& index = this->indices[i];
-            this->positionIndices.push_back(index.vertexIndex - 1);
+            this->EBO.push_back(index.vertexIndex - 1);
         }
 
-        // We only have position data right now, so we can just use that.
-        this->VBO.clear();
-        this->VBO = this->positions;
+        int n_verts = ((this->positions.size() / 3) - 1) / 3; // Number of vertices.
 
-        this->layout.pushFloat(3);
+        this->VBO.clear();
+        // Each vertex contains 3 floats for position, 3 floats for normal. (More to come later)
+        // Resize the VBO to its final size
+        this->VBO.resize(n_verts * 6 -1);
+        
+        for(int i = 0; i < n_verts; i++){
+            this->VBO[i * 6] = this->positions[i * 3];
+            this->VBO[i * 6 + 1] = this->positions[i * 3 + 1];
+            this->VBO[i * 6 + 2] = this->positions[i * 3 + 2];
+            this->VBO[i * 6 + 3] = 0.69f; // This dummy data
+            this->VBO[i * 6 + 4] = 0.69f; // This dummy data
+            this->VBO[i * 6 + 5] = 0.69f; // This dummy data
+        }
+
+
+        this->layout.pushFloat(3); // Position data is 3 floats.
+        this->layout.pushFloat(3); // Normal data is 3 floats.
+        
+
+        // Debug: Print stats about the data:
+        std::cout << "this->positions.size(): " << this->positions.size() << std::endl;
+        std::cout << "this->normals.size(): " << this->normals.size() << std::endl;
+        std::cout << "this->texCoords.size(): " << this->texCoords.size() << std::endl;
+        std::cout << "this->indices.size(): " << this->indices.size() << std::endl;
+        std::cout << "this->EBO.size(): " << this->EBO.size() << std::endl;
+        std::cout << "this->VBO.size(): " << this->VBO.size() << std::endl;
+
+        // Print VBO:
+        for(int i = 0; i < this->VBO.size()/6; i++){
+            std::cout << "VBO[" << i << "] position: " << this->VBO[i * 6] << " " << this->VBO[i * 6 + 1] << " " << this->VBO[i * 6 + 2] << std::endl;
+            std::cout << "VBO[" << i << "] normal: " << this->VBO[i * 6 + 3] << " " << this->VBO[i * 6 + 4] << " " << this->VBO[i * 6 + 5] << std::endl;
+        }
+        std::cout << std::endl;
 
     }
 
