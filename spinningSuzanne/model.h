@@ -1,5 +1,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <string>
 
 #include "VBO.h"
 #include "VBO_layout.h"
@@ -18,7 +19,8 @@ private:
 
 public:
     shaderClass m_shader;
-    model(std::vector<float> vertices, std::vector<unsigned int> indices, VBO_layout layout);
+    void readVBO(std::string fileName);
+    void readEBO(std::string fileName);
     void setModelT(glm::mat4 model);
     void setViewT(glm::mat4 view);
     void setProjectionT(glm::mat4 projection);

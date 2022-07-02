@@ -23,18 +23,10 @@ int main(){
     GLFWwindow* window = glInitHelper::setup(windowName); // Setup function exists just to move all the boilerplate crap out of sight
     glEnable(GL_DEPTH_TEST); // Enable depth testing - emsures that objects are drawn in the right order
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe for model debugging
-
-    obj suzanneObj("../cube.obj");
-    suzanneObj.readIndexData();
-    suzanneObj.readPositionData();
-    suzanneObj.readNormalData();
-    suzanneObj.createVBO();
-
-    model suzanne(
-        suzanneObj.VBO, // vertices
-        suzanneObj.EBO, // indices
-        suzanneObj.layout // layout
-    );
+    
+    model suzanne;
+    suzanne.readVBO("../suzanne.vbo");
+    suzanne.readEBO("../suzanne.ebo");
     suzanne.m_shader.createShader("GLSL/shader.vert.glsl", "GLSL/shader.frag.glsl");
     suzanne.m_shader.setUniform3f("lightPos", 1.0f, 10.0f, 2.0f);
 
