@@ -188,10 +188,11 @@ auto sort_permutation(T cbegin, T cend) {
     auto len = std::distance(cbegin, cend);
     std::vector<size_t> perm(len);
     std::iota(perm.begin(), perm.end(), 0U);
-    std::sort(perm.begin(), perm.end(), [&](const size_t& a, const size_t& b)
-    {
-        return *(cbegin+a) < *(cbegin+b);
-    });
+    std::sort(
+        perm.begin(), 
+        perm.end(), 
+        [&](const size_t& a, const size_t& b){return *(cbegin+a) < *(cbegin+b);}
+    );
     return perm;
 }
 
@@ -226,10 +227,19 @@ void objVBO::object::optimiseVBO(){
     }
     // Sort the sorted copy.
     // "r" stores an index which lets us track down the original position of the vertex before sorting.
-    auto r = sort_permutation(sortedTempVertData.begin(), sortedTempVertData.end());
+    auto r = sort_permutation(sortedTempVertData.cbegin(), sortedTempVertData.cend()-1);
     std::sort(sortedTempVertData.begin(), sortedTempVertData.end());
     unsigned int duplicates = 0;
     std::vector<unsigned int> unusedVerticeIndexes;
+
+    for(int i=0; i<sortedTempVertData.size(); i++){
+        if(tempVertData[r[i]] == sortedTempVertData[i]){
+            std::cout << "OK i: " << i << std::endl;
+        }
+        else{
+            std::cout << "ERR i: " << i << std::endl;
+        }
+    }
 
     // Check for duplicates:
     for(int i = 0; i < sortedTempVertData.size(); i++){
