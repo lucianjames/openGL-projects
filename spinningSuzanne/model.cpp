@@ -58,12 +58,6 @@ void model::readEBO(std::string fileName){
     file.close();
     // Create the EBO
     m_ebo.generate(EBOData, sizeof(unsigned int) * EBOData.size());
-    // Debug: Print the EBO data
-    std::cout << "EBO Data: " << std::endl;
-    for(int i = 0; i < EBOData.size(); i++){
-        std::cout << EBOData[i] << " ";
-    }
-    std::cout << std::endl;
 }
 
 void model::setModelT(glm::mat4 model){
