@@ -137,27 +137,65 @@ void objVBO::object::optimiseVBO(){
 
     // Get the indices of the vertices which are duplicate.
     // This algorithm is O(n^2), need to replace it with a better algorithm later.
-    unsigned int duplicates;
-    std::vector<unsigned int> removedIndices;
+    unsigned int duplicates = 0;
+    std::vector<unsigned int> unusedVerticeIndexes;
     for(int i = 0; i < tempVertData.size(); i++){
         for(int j = i + 1; j < tempVertData.size(); j++){
             if(tempVertData[i] == tempVertData[j]){
                 // If the two vertices are the same, replace the index of the second one with the index of the first one.
-                removedIndices.push_back(EBO[j]);
-                this->EBO[j] = this->EBO[i];
                 duplicates++;
                 std::cout << "Duplicate found: " << i << " and " << j << std::endl;
+                this->EBO[j] = this->EBO[i]; // Assumes EBO counts up from 0 by 1 to n.
+                unusedVerticeIndexes.push_back(j); // Add the index of the second one to the list of unused vertices.
             }
         }
     }
 
-    std::cout << "removedIndices.size(): " << removedIndices.size() << std::endl;
+    std::cout << "unusedVerticeIndexes.size(): " << unusedVerticeIndexes.size() << std::endl;
     std::cout << "duplicates: " << duplicates << std::endl;
     std::cout << "this->EBO.size(): " << this->EBO.size() << std::endl;
     std::cout << "this->VBO.size(): " << this->VBO.size() << std::endl;
     std::cout << "this->vertSize: " << this->vertSize << std::endl;
     std::cout << "this->VBO.size() / this->vertSize: " << this->VBO.size() / this->vertSize << std::endl;
+    // Count the number of duplicates in the EBO vector. Dont change anything, just count
+    unsigned int duplicatesEBO = 0;
+    for(int i = 0; i < this->EBO.size(); i++){
+        for(int j = i + 1; j < this->EBO.size(); j++){
+            if(this->EBO[i] == this->EBO[j]){
+                duplicatesEBO++;
+            }
+        }
+    }
+    std::cout << "duplicatesEBO: " << duplicatesEBO << std::endl;
 
+    // Sort the list of unused vertices in descending order.
+    std::sort(unusedVerticeIndexes.begin(), unusedVerticeIndexes.end(), std::greater<unsigned int>());
+    // Remove the duplicates from the unused vertices list by checking if the index of the current unused vertex is the same as the next unused vertex.
+    for(int i = 0; i < unusedVerticeIndexes.size(); i++){
+        if(unusedVerticeIndexes[i] == unusedVerticeIndexes[i + 1]){
+            unusedVerticeIndexes.erase(unusedVerticeIndexes.begin() + i);
+            i--;
+        }
+    }
+    // Print the list of unused vertices.
+    std::cout << "Unused Vertices: " << std::endl;
+    for(int i = 0; i < unusedVerticeIndexes.size(); i++){
+        std::cout << unusedVerticeIndexes[i] << " ";
+    }
+    std::cout << std::endl;
+
+    // Remove the unused vertices from tempVertData.
+    for(int i = 0; i < unusedVerticeIndexes.size(); i++){
+        tempVertData.erase(tempVertData.begin() + unusedVerticeIndexes[i]);
+        // Shift the indices of the EBO vector.
+        for(int j = 0; j < this->EBO.size(); j++){
+            if(this->EBO[j] > unusedVerticeIndexes[i]){
+                this->EBO[j]--;
+            }
+        }
+    }
+
+    std::cout << "Old VBO.size(): " << this->VBO.size() << std::endl;
     // Assemble new VBO from the new vector of vectors.
     this->VBO.resize(tempVertData.size() * this->vertSize);
     for(int i = 0; i < tempVertData.size(); i++){
@@ -165,7 +203,7 @@ void objVBO::object::optimiseVBO(){
             this->VBO[i * this->vertSize + j] = tempVertData[i][j];
         }
     }
-
+    std::cout << "New VBO.size(): " << this->VBO.size() << std::endl;
 }
 
 
