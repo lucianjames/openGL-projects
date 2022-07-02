@@ -28,9 +28,11 @@ namespace objVBO{
         std::vector<float> textureCoords;
         std::vector<vertexIndices> indices; // Index data
         std::vector<float> VBO; // The actual VBO data derived from the above data.
-        std::vector<int> VBO_indices; // The indices of the VBO data derived from the above data.
+        std::vector<int> EBO; // The indices of the VBO data derived from the above data.
         object(const std::string fileName);
         void debugPrintData();
         void assembleVBO();
+        void writeVBO(const std::string fileName);
+        void writeEBO(const std::string fileName);
     };
 }

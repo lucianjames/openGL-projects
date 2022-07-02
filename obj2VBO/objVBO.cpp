@@ -128,8 +128,8 @@ void objVBO::object::assembleVBO(){
     this->VBO.clear();
     int vertSize = 3 + 3 + 2; // 3 floats for position, 3 floats for normal, 2 floats for texture coordinate. !!!!!! HARD CODE !!!!!!
     this->VBO.resize(vertSize * indices.size()); // Resize the VBO to the correct size.
-    this->VBO_indices.clear();
-    this->VBO_indices.resize(positions.size() / 3); // The number of vertices is the number of positions divided by 3 because each vertex has 3 float values.
+    this->EBO.clear();
+    this->EBO.resize(positions.size() / 3); // The number of vertices is the number of positions divided by 3 because each vertex has 3 float values.
 
     // !!!!!! HARD CODED - IDEALLY CAN ADAPT IF ANY ATTRIBUTE IS MISSING !!!!!!
     for(int i=0; i < this->VBO.size() / vertSize; i++){
@@ -148,7 +148,7 @@ void objVBO::object::assembleVBO(){
 
     // Create the basic indices (just count up lol)
     for(int i = 0; i < this->VBO.size() / vertSize; i++){
-        this->VBO_indices[i] = i;
+        this->EBO[i] = i;
     }
 
     // Print the entire VBO
@@ -164,8 +164,30 @@ void objVBO::object::assembleVBO(){
 
     // Print the indices
     std::cout << "VBO Indices: " << std::endl;
-    for(int i = 0; i < this->VBO_indices.size(); i++){
-        std::cout << this->VBO_indices[i] << ", ";
+    for(int i = 0; i < this->EBO.size(); i++){
+        std::cout << this->EBO[i] << ", ";
     }
     std::cout << std::endl;
+}
+
+
+
+void objVBO::object::writeVBO(const std::string filename){
+    std::ofstream file;
+    file.open(filename + ".vbo");
+    // Write the entire VBO onto the first line of the file
+    for(int i = 0; i < this->VBO.size(); i++){
+        file << this->VBO[i] << " ";
+    }
+    file.close();
+}
+
+void objVBO::object::writeEBO(const std::string filename){
+    std::ofstream file;
+    file.open(filename + ".ebo");
+    // Write the entire EBO onto the first line of the file
+    for(int i = 0; i < this->EBO.size(); i++){
+        file << this->EBO[i] << " ";
+    }
+    file.close();
 }

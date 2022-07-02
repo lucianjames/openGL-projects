@@ -10,8 +10,10 @@
 // 4: Create a VBO to make up for the pruning
 
 int main(){
-    objVBO::object obj("../triangle.obj");
+    objVBO::object obj("../cube.obj");
     //obj.debugPrintData();
     obj.assembleVBO();
+    obj.writeVBO("../cube");
+    obj.writeEBO("../cube");
     return 0;
 }
