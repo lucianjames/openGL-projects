@@ -225,33 +225,22 @@ void objVBO::object::optimiseVBO(){
             sortedTempVertData[i][j] = tempVertData[i][j];
         }
     }
-    // Sort the sorted copy.
-    // "r" stores an index which lets us track down the original position of the vertex before sorting.
-    auto r = sort_permutation(sortedTempVertData.cbegin(), sortedTempVertData.cend()-1);
-    std::sort(sortedTempVertData.begin(), sortedTempVertData.end());
-    unsigned int duplicates = 0;
-    std::vector<unsigned int> unusedVerticeIndexes;
-
-    for(int i=0; i<sortedTempVertData.size(); i++){
-        if(tempVertData[r[i]] == sortedTempVertData[i]){
-            std::cout << "OK i: " << i << std::endl;
-        }
-        else{
-            std::cout << "ERR i: " << i << std::endl;
-        }
-    }
+    // Sort it:
+    auto sortPerm = sort_permutation(sortedTempVertData.cbegin(), sortedTempVertData.cend()); // stores an index which lets us track down the original position of the vertex before sorting.
+    std::sort(sortedTempVertData.begin(), sortedTempVertData.end()); // Sort the data.
 
     // Check for duplicates:
+    unsigned int duplicates = 0;
+    std::vector<unsigned int> unusedVerticeIndexes;
     for(int i = 0; i < sortedTempVertData.size(); i++){
         if(sortedTempVertData[i] == sortedTempVertData[i+1]){
+            this->EBO[sortPerm[i]] = this->EBO[sortPerm[i+1]];
+            unusedVerticeIndexes.push_back(sortPerm[i]);
             duplicates++;
-            this->EBO[r[i]] = this->EBO[r[i+1]];
-            unusedVerticeIndexes.push_back(r[i]);
         }
     }
-
-    // Sort the list of unused vertices in descending order.
-    std::sort(unusedVerticeIndexes.begin(), unusedVerticeIndexes.end(), std::greater<unsigned int>());
+    
+    std::sort(unusedVerticeIndexes.begin(), unusedVerticeIndexes.end(), std::greater<unsigned int>()); // Sort the list of unused vertices in descending order.
     // Remove the duplicates from the unused vertices list by checking if the index of the current unused vertex is the same as the next unused vertex.
     for(int i = 0; i < unusedVerticeIndexes.size(); i++){
         if(unusedVerticeIndexes[i] == unusedVerticeIndexes[i + 1]){
