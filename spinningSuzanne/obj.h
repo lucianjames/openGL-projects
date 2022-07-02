@@ -110,30 +110,8 @@ public: // Make everything public  /////// !!!ONLY FOR NOW!!! ///////
 
         // We only have position data right now, so we can just use that.
         this->VBO.clear();
+        this->VBO = this->positions;
 
-        // Figure out how many vertices need to be made:
-        int n_verts = this->positions.size()/3; // Lets assume this is fine.
-
-        // Debug print size of data
-        std::cout << "n_verts: " << n_verts << std::endl;
-        std::cout << "positions.size(): " << this->positions.size() << std::endl;
-        std::cout << "positionIndices.size(): " << this->positionIndices.size() << std::endl;
-        std::cout << "normals.size(): " << this->normals.size() << std::endl;
-        std::cout << "this->indices.size(): " << this->indices.size() << std::endl;
-
-        // For every vert requried, do some shit :)
-        for(int v=0; v < n_verts; v++){
-            // Add position data
-            this->VBO.push_back(this->positions[(v*3)]);
-            this->VBO.push_back(this->positions[(v*3)+1]);
-            this->VBO.push_back(this->positions[(v*3)+2]);
-            // Add normal data
-            this->VBO.push_back(this->normals[(v*3)]);
-            this->VBO.push_back(this->normals[(v*3)+1]);
-            this->VBO.push_back(this->normals[(v*3)+2]);
-        }
-
-        this->layout.pushFloat(3);
         this->layout.pushFloat(3);
 
     }
