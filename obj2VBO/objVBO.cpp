@@ -201,14 +201,23 @@ void objVBO::object::optimiseVBO(){
     std::cout << "Searching for duplicate vertices inside the VBO..." << std::endl;
     unsigned int duplicates = 0;
     std::vector<unsigned int> unusedVerticeIndexes;
+    // Create a sorted copy of tempVertData.
+    std::vector<std::vector<float>> sortedTempVertData;
+    sortedTempVertData.resize(tempVertData.size());
     for(int i = 0; i < tempVertData.size(); i++){
-        for(int j = i + 1; j < tempVertData.size(); j++){
-            if(tempVertData[i] == tempVertData[j]){
-                // If the two vertices are the same, replace the index of the second one with the index of the first one.
-                duplicates++;
-                this->EBO[j] = this->EBO[i]; // Assumes EBO counts up from 0 by 1 to n.
-                unusedVerticeIndexes.push_back(j); // Add the index of the second one to the list of unused vertices.
-            }
+        sortedTempVertData[i].resize(tempVertData[i].size());
+    }
+    for(int i = 0; i < tempVertData.size(); i++){
+        for(int j = 0; j < tempVertData[i].size(); j++){
+            sortedTempVertData[i][j] = tempVertData[i][j];
+        }
+    }
+    std::sort(sortedTempVertData.begin(), sortedTempVertData.end());
+    for(int i = 0; i < sortedTempVertData.size(); i++){
+        if(sortedTempVertData[i] == sortedTempVertData[i+1]){
+            duplicates++;
+            this->EBO[i] = this->EBO[i+1]; // Set the EBO to the previous index.
+            unusedVerticeIndexes.push_back(i); // Add the index to the list of unused vertices.
         }
     }
     // Sort the list of unused vertices in descending order.
