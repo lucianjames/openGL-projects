@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3") # Optimisation!!!
 set(SOURCE
     ${SOURCE}
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/objVBO.cpp
 )
 
 add_executable(main ${SOURCE}) # Add the source files to the executable
