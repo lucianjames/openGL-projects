@@ -58,7 +58,7 @@ int main(){
         perspective = glm::perspective(glm::radians(45.0f), (float)m_viewport[2] / (float)m_viewport[3], 0.1f, 100.0f); // Update the perspective projection matrix
         suzanne.setProjectionT(perspective); // Set the perspective projection matrix
 
-        // Rotate and draw the first suzanne :D
+        // Rotate and draw the suzanne :D
         model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.5f)); // Rotate the suzanne
         suzanne.setModelT(model); // Set the model matrix
         suzanne.draw();

@@ -62,6 +62,8 @@ void objVBO::readObjIndices(const std::string fileName, std::vector<vertexIndice
 //              OBJECT CLASS IMPLEMENTATION
 // =========================================================
 
+
+
 template<typename T>
 void objVBO::object::printVector(const std::vector<T>& data){
     for(int i = 0; i < data.size(); i++){
@@ -119,18 +121,66 @@ void objVBO::object::debugPrintData(){
     }
 }
 
-
+void objVBO::object::optimiseVBO(){
+    // First break the data into a vector of vectors with size this->vertSize.
+    std::vector<std::vector<float>> tempVertData;
+    tempVertData.resize(this->VBO.size() / this->vertSize);
+    for(int i = 0; i < tempVertData.size(); i++){
+        tempVertData[i].resize(this->vertSize);
+    }
+    // Fill the new vector with the data.
+    for(int i = 0; i < this->VBO.size(); i++){
+        tempVertData[i / this->vertSize][i % this->vertSize] = this->VBO[i];
+    }
+    
+    // Print duplicate std::vector<float>s in the tempVertData vector.
+    // Using o(n^2) algorithm. (Bad)
+    std::vector<unsigned int> duplicateIndices;
+    for(int i = 0; i < tempVertData.size(); i++){
+        for(int j = i + 1; j < tempVertData.size(); j++){
+            if(tempVertData[i] == tempVertData[j]){
+                std::cout << "Duplicate std::vector<float> found at index " << i << " and " << j << std::endl;
+                duplicateIndices.push_back(i);
+                duplicateIndices.push_back(j);
+            }
+        }
+    }
+    // Print the duplicate data:
+    std::cout << "Duplicate std::vector<float> data: " << std::endl;
+    for(int i = 0; i < duplicateIndices.size(); i++){
+        std::cout << duplicateIndices[i] << ": ";
+        for(int j = 0; j < tempVertData[duplicateIndices[i]].size(); j++){
+            std::cout << tempVertData[duplicateIndices[i]][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+}
 
 void objVBO::object::assembleVBO(){
-    // 1: Create a VBO with all vertex data (expand the indices out to the full number of vertices)
-    // Set indices to count up from 0 to the number of vertices. (Will be optimised later on)
+    // Check for the presence of position, normal, and texture coordinates:
+    if(positions.size() == 0 || normals.size() == 0 || textureCoords.size() == 0){
+        std::cout << "Error: Object does not have all required data:" << std::endl;
+        // Figure out which data is missing.
+        if(positions.size() == 0){
+            std::cout << "Missing position data" << std::endl;
+        }
+        if(normals.size() == 0){
+            std::cout << "Missing normal data" << std::endl;
+        }
+        if(textureCoords.size() == 0){
+            std::cout << "Missing texture coordinate data" << std::endl;
+        }
+        // Throw runtime error
+        throw std::runtime_error("Error: Object does not have all required data.");
+    }
 
+    // Create a VBO with all vertex data (expand the indices out to the full number of vertices)
+    // Set indices to count up from 0 to the number of vertices. (This can be optimised later on)
     this->VBO.clear();
-    int vertSize = 3 + 3 + 2; // 3 floats for position, 3 floats for normal, 2 floats for texture coordinate. !!!!!! HARD CODE !!!!!!
+    this->vertSize = 3 + 3 + 2; // 3 floats for position, 3 floats for normal, 2 floats for texture coordinate. !!!!!! HARD CODE !!!!!!
     this->VBO.resize(vertSize * this->indices.size()); // Resize the VBO to the correct size.
     this->EBO.clear();
     this->EBO.resize(this->indices.size()); // Resize the EBO to the correct size.
-
     // !!!!!! HARD CODED - IDEALLY CAN ADAPT IF ANY ATTRIBUTE IS MISSING !!!!!!
     for(int i=0; i < this->VBO.size() / vertSize; i++){
         // Read position data from the indices.
@@ -145,30 +195,15 @@ void objVBO::object::assembleVBO(){
         this->VBO[(i * vertSize) + 6] = textureCoords[((this->indices[i].textureIndex-1) * 2) + 0];
         this->VBO[(i * vertSize) + 7] = textureCoords[((this->indices[i].textureIndex-1) * 2) + 1];
     }
-
     // Create the basic indices (just count up lol)
     for(int i = 0; i < this->VBO.size() / vertSize; i++){
         this->EBO[i] = i;
     }
-
-    // Print the entire VBO
-    std::cout << "VBO: " << std::endl;
-    for(int i = 0; i < this->VBO.size(); i++){
-        std::cout << this->VBO[i] << ", ";
-        // New line every vertSize indices.
-        if(i % vertSize == vertSize - 1){
-            std::cout << std::endl;
-        }
-    }
-    std::cout << std::endl;
-
-    // Print the indices
-    std::cout << "VBO Indices: " << std::endl;
-    for(int i = 0; i < this->EBO.size(); i++){
-        std::cout << this->EBO[i] << ", ";
-    }
-    std::cout << std::endl;
 }
+
+
+
+
 
 
 

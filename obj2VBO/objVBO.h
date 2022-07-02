@@ -4,6 +4,8 @@
 #include <fstream>
 #include <sstream>
 #include <charconv>
+#include <set>
+#include <algorithm>
 
 namespace objVBO{
 
@@ -13,14 +15,13 @@ namespace objVBO{
         int textureIndex;
     };
 
-    template<typename T>
-    void readObjValues(const std::string fileName, const std::string startTag, const int dataCount, std::vector<T>& data);
+    template<typename T> void readObjValues(const std::string fileName, const std::string startTag, const int dataCount, std::vector<T>& data);
     void readObjIndices(const std::string fileName, std::vector<vertexIndices>& data);
 
     class object{
     private:
-        template<typename T>
-        void printVector(const std::vector<T>& data);
+        template<typename T> void printVector(const std::vector<T>& data);
+        int vertSize;
 
     public:
         std::vector<float> positions;
@@ -32,6 +33,7 @@ namespace objVBO{
         object(const std::string fileName);
         void debugPrintData();
         void assembleVBO();
+        void optimiseVBO();
         void writeVBO(const std::string fileName);
         void writeEBO(const std::string fileName);
     };

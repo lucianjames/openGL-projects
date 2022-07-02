@@ -23,6 +23,7 @@ int main(int argc, char** argv){
     objVBO::object obj(input);
     //obj.debugPrintData();
     obj.assembleVBO();
+    obj.optimiseVBO();
     obj.writeVBO(output);
     obj.writeEBO(output);
     
