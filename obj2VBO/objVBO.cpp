@@ -136,7 +136,7 @@ void objVBO::object::assembleVBO(){
     std::cout << "Assembling VBO..." << std::endl;
     // Check for the presence of position, normal, and texture coordinates:
     std::cout << "Checking for presence of position, normal, and texture coordinates..." << std::endl;
-    if(positions.size() == 0 || normals.size() == 0 || textureCoords.size() == 0){
+    if(positions.size() == 0 || normals.size() == 0 || textureCoords.size() == 0){ // !!!!!! HARD CODED !!!!!!
         std::cout << "Error: Object does not have all required data:" << std::endl;
         // Figure out which data is missing.
         if(positions.size() == 0){
@@ -155,13 +155,12 @@ void objVBO::object::assembleVBO(){
     // Create a VBO with all vertex data (expand the indices out to the full number of vertices)
     // Set indices to count up from 0 to the number of vertices. (This can be optimised later on)
     this->VBO.clear();
-    this->vertSize = 3 + 3 + 2; // 3 floats for position, 3 floats for normal, 2 floats for texture coordinate. !!!!!! HARD CODE !!!!!!
+    this->vertSize = 3 + 3 + 2; // 3 floats for position, 3 floats for normal, 2 floats for texture coordinate. !!!!!! HARD CODED !!!!!!
     this->VBO.resize(vertSize * this->indices.size()); // Resize the VBO to the correct size.
     this->EBO.clear();
     this->EBO.resize(this->indices.size()); // Resize the EBO to the correct size.
-    // !!!!!! HARD CODED - IDEALLY CAN ADAPT IF ANY ATTRIBUTE IS MISSING !!!!!!
     std::cout << "Creating VBO..." << std::endl;
-    for(int i=0; i < this->VBO.size() / vertSize; i++){
+    for(int i=0; i < this->VBO.size() / vertSize; i++){ // !!!!!! HARD CODED !!!!!!
         // Read position data from the indices.
         this->VBO[(i * vertSize) + 0] = positions[((this->indices[i].positionIndex-1) * 3) + 0]; // The -1 is because the obj file indices start at 1, not 0. (Which is fucking retarded)
         this->VBO[(i * vertSize) + 1] = positions[((this->indices[i].positionIndex-1) * 3) + 1];
@@ -221,7 +220,7 @@ void objVBO::object::optimiseVBO(){
             i--;
         }
     }
-    std::cout << "Found " << unusedVerticeIndexes.size() << " true unused vertices." << std::endl;
+    std::cout << "Found " << unusedVerticeIndexes.size() << " true vertices." << std::endl;
     // Remove the unused vertices from tempVertData.
     std::cout << "Removing unused vertices from the VBO..." << std::endl;
     for(int i = 0; i < unusedVerticeIndexes.size(); i++){
