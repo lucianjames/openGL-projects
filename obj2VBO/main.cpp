@@ -68,7 +68,7 @@ void readObjIndices(const std::string fileName, std::vector<vertexIndices>& data
 }
 
 
-class obj_file{
+class objVBO{
 private:
     template<typename T>
     void printVector(const std::vector<T>& data){
@@ -87,7 +87,7 @@ public:
     std::vector<float> VBO; // The actual VBO data derived from the above data.
     std::vector<int> VBO_indices; // The indices of the VBO data derived from the above data.
 
-    obj_file(const std::string fileName){
+    objVBO(const std::string fileName){
         readObjValues(fileName, "v ", 3, positions);
         readObjValues(fileName, "vn", 3, normals);
         readObjValues(fileName, "vt", 2, textureCoords);
@@ -145,7 +145,7 @@ public:
         // !!!!!! HARD CODED - IDEALLY CAN ADAPT IF ANY ATTRIBUTE IS MISSING !!!!!!
         for(int i=0; i < this->VBO.size() / vertSize; i++){
             // Read position data from the indices.
-            this->VBO[(i * vertSize) + 0] = positions[((this->indices[i].vertexIndex-1) * 3) + 0]; // The -1 is because the indices start at 1, not 0. (Which is fucking retarded)
+            this->VBO[(i * vertSize) + 0] = positions[((this->indices[i].vertexIndex-1) * 3) + 0]; // The -1 is because the obj file indices start at 1, not 0. (Which is fucking retarded)
             this->VBO[(i * vertSize) + 1] = positions[((this->indices[i].vertexIndex-1) * 3) + 1];
             this->VBO[(i * vertSize) + 2] = positions[((this->indices[i].vertexIndex-1) * 3) + 2];
             // Read normal data
@@ -155,6 +155,11 @@ public:
             // Read texCoord data
             this->VBO[(i * vertSize) + 6] = textureCoords[((this->indices[i].textureIndex-1) * 2) + 0];
             this->VBO[(i * vertSize) + 7] = textureCoords[((this->indices[i].textureIndex-1) * 2) + 1];
+        }
+
+        // Create the basic indices (just count up lol)
+        for(int i = 0; i < this->VBO.size() / vertSize; i++){
+            this->VBO_indices[i] = i;
         }
 
         // Print the entire VBO
@@ -167,13 +172,20 @@ public:
             }
         }
         std::cout << std::endl;
+
+        // Print the indices
+        std::cout << "VBO Indices: " << std::endl;
+        for(int i = 0; i < this->VBO_indices.size(); i++){
+            std::cout << this->VBO_indices[i] << ", ";
+        }
+        std::cout << std::endl;
     }
 
 };
 
 
 int main(){
-    obj_file obj("../triangle.obj");
+    objVBO obj("../triangle.obj");
     //obj.debugPrintData();
     obj.assembleVBO();
     return 0;
