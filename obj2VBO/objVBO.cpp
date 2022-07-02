@@ -42,7 +42,7 @@ void objVBO::readObjIndices(const std::string fileName, std::vector<vertexIndice
                 vertexIndices temp;
                 std::stringstream ss2(token);
                 std::getline(ss2, token, '/'); // Get the first token.
-                std::from_chars(token.data(), token.data() + token.size(), temp.vertexIndex);
+                std::from_chars(token.data(), token.data() + token.size(), temp.positionIndex);
                 std::getline(ss2, token, '/'); // Get the second token.
                 std::from_chars(token.data(), token.data() + token.size(), temp.textureIndex);
                 std::getline(ss2, token, '/'); // Get the third token.
@@ -97,7 +97,7 @@ void objVBO::object::debugPrintData(){
     // Print vertex indices
     std::cout << "Vertex Indices: " << std::endl;
     for(int i = 0; i < indices.size(); i++){
-        std::cout << indices[i].vertexIndex << ", ";
+        std::cout << indices[i].positionIndex << ", ";
         // New line every 3 indices.
         if(i % 3 == 2){
             std::cout << std::endl;
@@ -121,6 +121,8 @@ void objVBO::object::debugPrintData(){
     }
 }
 
+
+
 void objVBO::object::optimiseVBO(){
     // First break the data into a vector of vectors with size this->vertSize.
     std::vector<std::vector<float>> tempVertData;
@@ -132,29 +134,41 @@ void objVBO::object::optimiseVBO(){
     for(int i = 0; i < this->VBO.size(); i++){
         tempVertData[i / this->vertSize][i % this->vertSize] = this->VBO[i];
     }
-    
-    // Print duplicate std::vector<float>s in the tempVertData vector.
-    // Using o(n^2) algorithm. (Bad)
-    std::vector<unsigned int> duplicateIndices;
+
+    // Get the indices of the vertices which are duplicate.
+    // This algorithm is O(n^2), need to replace it with a better algorithm later.
+    unsigned int duplicates;
+    std::vector<unsigned int> removedIndices;
     for(int i = 0; i < tempVertData.size(); i++){
         for(int j = i + 1; j < tempVertData.size(); j++){
             if(tempVertData[i] == tempVertData[j]){
-                std::cout << "Duplicate std::vector<float> found at index " << i << " and " << j << std::endl;
-                duplicateIndices.push_back(i);
-                duplicateIndices.push_back(j);
+                // If the two vertices are the same, replace the index of the second one with the index of the first one.
+                removedIndices.push_back(EBO[j]);
+                this->EBO[j] = this->EBO[i];
+                duplicates++;
+                std::cout << "Duplicate found: " << i << " and " << j << std::endl;
             }
         }
     }
-    // Print the duplicate data:
-    std::cout << "Duplicate std::vector<float> data: " << std::endl;
-    for(int i = 0; i < duplicateIndices.size(); i++){
-        std::cout << duplicateIndices[i] << ": ";
-        for(int j = 0; j < tempVertData[duplicateIndices[i]].size(); j++){
-            std::cout << tempVertData[duplicateIndices[i]][j] << " ";
+
+    std::cout << "removedIndices.size(): " << removedIndices.size() << std::endl;
+    std::cout << "duplicates: " << duplicates << std::endl;
+    std::cout << "this->EBO.size(): " << this->EBO.size() << std::endl;
+    std::cout << "this->VBO.size(): " << this->VBO.size() << std::endl;
+    std::cout << "this->vertSize: " << this->vertSize << std::endl;
+    std::cout << "this->VBO.size() / this->vertSize: " << this->VBO.size() / this->vertSize << std::endl;
+
+    // Assemble new VBO from the new vector of vectors.
+    this->VBO.resize(tempVertData.size() * this->vertSize);
+    for(int i = 0; i < tempVertData.size(); i++){
+        for(int j = 0; j < this->vertSize; j++){
+            this->VBO[i * this->vertSize + j] = tempVertData[i][j];
         }
-        std::cout << std::endl;
     }
+
 }
+
+
 
 void objVBO::object::assembleVBO(){
     // Check for the presence of position, normal, and texture coordinates:
@@ -184,9 +198,9 @@ void objVBO::object::assembleVBO(){
     // !!!!!! HARD CODED - IDEALLY CAN ADAPT IF ANY ATTRIBUTE IS MISSING !!!!!!
     for(int i=0; i < this->VBO.size() / vertSize; i++){
         // Read position data from the indices.
-        this->VBO[(i * vertSize) + 0] = positions[((this->indices[i].vertexIndex-1) * 3) + 0]; // The -1 is because the obj file indices start at 1, not 0. (Which is fucking retarded)
-        this->VBO[(i * vertSize) + 1] = positions[((this->indices[i].vertexIndex-1) * 3) + 1];
-        this->VBO[(i * vertSize) + 2] = positions[((this->indices[i].vertexIndex-1) * 3) + 2];
+        this->VBO[(i * vertSize) + 0] = positions[((this->indices[i].positionIndex-1) * 3) + 0]; // The -1 is because the obj file indices start at 1, not 0. (Which is fucking retarded)
+        this->VBO[(i * vertSize) + 1] = positions[((this->indices[i].positionIndex-1) * 3) + 1];
+        this->VBO[(i * vertSize) + 2] = positions[((this->indices[i].positionIndex-1) * 3) + 2];
         // Read normal data
         this->VBO[(i * vertSize) + 3] = normals[((this->indices[i].normalIndex-1) * 3) + 0];
         this->VBO[(i * vertSize) + 4] = normals[((this->indices[i].normalIndex-1) * 3) + 1];
@@ -200,10 +214,6 @@ void objVBO::object::assembleVBO(){
         this->EBO[i] = i;
     }
 }
-
-
-
-
 
 
 

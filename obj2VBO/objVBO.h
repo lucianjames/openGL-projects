@@ -6,11 +6,12 @@
 #include <charconv>
 #include <set>
 #include <algorithm>
+#include <map>
 
 namespace objVBO{
 
     struct vertexIndices{
-        int vertexIndex;
+        int positionIndex;
         int normalIndex;
         int textureIndex;
     };
