@@ -4,9 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <charconv>
-#include <set>
 #include <algorithm>
-#include <map>
 
 namespace objVBO{
 
