@@ -4,5 +4,11 @@ out vec4 FragColor;
 in vec3 normal;
 in vec3 fragPos;
 void main(){
-    FragColor = vec4(1.0, 0.2, 0.1, 1.0);
+    vec3 norm = normalize(normal);
+    vec3 lightDir = normalize(lightPos - fragPos);
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = diff * vec3(0.5, 0.5, 0.5);
+    vec3 result = diffuse + vec3(0.5, 0.5, 0.5);
+    FragColor = vec4(result, 1.0);
+    FragColor = vec4(normal, 1.0);
 }
