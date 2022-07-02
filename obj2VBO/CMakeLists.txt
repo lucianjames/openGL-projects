@@ -9,9 +9,9 @@ set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/objVBO.cpp
 )
 
-add_executable(main ${SOURCE}) # Add the source files to the executable
+add_executable(obj2vbo ${SOURCE}) # Add the source files to the executable
 
-target_link_libraries(main)
+target_link_libraries(obj2vbo)
 
 # A warning to anyone reading this cmake file:
 #   I am fucking retarded and I don't know how to use cmake properly. :)

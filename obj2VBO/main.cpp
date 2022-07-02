@@ -9,11 +9,22 @@
 // 3: Prune the VBO to remove duplicate vertices
 // 4: Create a VBO to make up for the pruning
 
-int main(){
-    objVBO::object obj("../cube.obj");
+int main(int argc, char** argv){
+    // Error checking
+    if(argc != 3){
+        std::cout << "Usage: " << argv[0] << " <input file> <output file>" << std::endl;
+        return 1;
+    }
+
+    // Get IO variables from command line arg
+    std::string input = argv[1]; // argv[0] is the program name.
+    std::string output = argv[2]; // argv[1] is the input file.
+
+    objVBO::object obj(input);
     //obj.debugPrintData();
     obj.assembleVBO();
-    obj.writeVBO("../cube");
-    obj.writeEBO("../cube");
+    obj.writeVBO(output);
+    obj.writeEBO(output);
+    
     return 0;
 }
