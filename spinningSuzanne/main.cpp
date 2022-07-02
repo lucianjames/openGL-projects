@@ -39,10 +39,7 @@ int main(){
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f)); // note that we're translating the scene in the reverse direction of where we want to move
     // Only need to set this transform once (camera never moves in this example), so lets do it now outside of the loop:
     suzanne.setViewT(view);
-
-    // Monkey spin
     glm::mat4 model = glm::mat4(1.0f); // Define a model matrix for the square
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
     // === Main loop === //
     while (!glfwWindowShouldClose(window)){
@@ -62,7 +59,7 @@ int main(){
         suzanne.setProjectionT(perspective); // Set the perspective projection matrix
 
         // Rotate and draw the first suzanne :D
-        model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.1f, 1.0f, 0.2f)); // Rotate the suzanne
+        model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.5f)); // Rotate the suzanne
         suzanne.setModelT(model); // Set the model matrix
         suzanne.draw();
 
