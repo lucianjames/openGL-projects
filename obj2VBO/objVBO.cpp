@@ -220,7 +220,7 @@ void objVBO::object::optimiseVBO(){
             i--;
         }
     }
-    std::cout << "Found " << unusedVerticeIndexes.size() << " true vertices." << std::endl;
+    std::cout << "Found " << unusedVerticeIndexes.size() << " unused vertices." << std::endl;
     // Remove the unused vertices from tempVertData.
     std::cout << "Removing unused vertices from the VBO..." << std::endl;
     for(int i = 0; i < unusedVerticeIndexes.size(); i++){
