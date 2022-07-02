@@ -183,6 +183,20 @@ void objVBO::object::assembleVBO(){
 
 
 
+template <typename T>
+auto sort_permutation(T cbegin, T cend) {
+    auto len = std::distance(cbegin, cend);
+    std::vector<size_t> perm(len);
+    std::iota(perm.begin(), perm.end(), 0U);
+    std::sort(perm.begin(), perm.end(), [&](const size_t& a, const size_t& b)
+    {
+        return *(cbegin+a) < *(cbegin+b);
+    });
+    return perm;
+}
+
+
+
 void objVBO::object::optimiseVBO(){
     // First break the data into a vector of vectors with size this->vertSize.
     std::cout << "==========================================================" << std::endl;
@@ -196,11 +210,9 @@ void objVBO::object::optimiseVBO(){
     for(int i = 0; i < this->VBO.size(); i++){
         tempVertData[i / this->vertSize][i % this->vertSize] = this->VBO[i];
     }
-    // Get the indices of the vertices which are duplicate.
-    // This algorithm is O(n^2), need to replace it with a better algorithm later.
+
+    // Get the indices of the vertices which are duplicate:
     std::cout << "Searching for duplicate vertices inside the VBO..." << std::endl;
-    unsigned int duplicates = 0;
-    std::vector<unsigned int> unusedVerticeIndexes;
     // Create a sorted copy of tempVertData.
     std::vector<std::vector<float>> sortedTempVertData;
     sortedTempVertData.resize(tempVertData.size());
@@ -212,14 +224,22 @@ void objVBO::object::optimiseVBO(){
             sortedTempVertData[i][j] = tempVertData[i][j];
         }
     }
+    // Sort the sorted copy.
+    // "r" stores an index which lets us track down the original position of the vertex before sorting.
+    auto r = sort_permutation(sortedTempVertData.begin(), sortedTempVertData.end());
     std::sort(sortedTempVertData.begin(), sortedTempVertData.end());
+    unsigned int duplicates = 0;
+    std::vector<unsigned int> unusedVerticeIndexes;
+
+    // Check for duplicates:
     for(int i = 0; i < sortedTempVertData.size(); i++){
         if(sortedTempVertData[i] == sortedTempVertData[i+1]){
             duplicates++;
-            this->EBO[i] = this->EBO[i+1]; // Set the EBO to the previous index.
-            unusedVerticeIndexes.push_back(i); // Add the index to the list of unused vertices.
+            this->EBO[r[i]] = this->EBO[r[i+1]];
+            unusedVerticeIndexes.push_back(r[i]);
         }
     }
+
     // Sort the list of unused vertices in descending order.
     std::sort(unusedVerticeIndexes.begin(), unusedVerticeIndexes.end(), std::greater<unsigned int>());
     // Remove the duplicates from the unused vertices list by checking if the index of the current unused vertex is the same as the next unused vertex.
@@ -230,21 +250,30 @@ void objVBO::object::optimiseVBO(){
         }
     }
     std::cout << "Found " << unusedVerticeIndexes.size() << " unused vertices." << std::endl;
+    // DEBUG: print the unused vertices.
+    for(int i = 0; i < unusedVerticeIndexes.size(); i++){
+        std::cout << unusedVerticeIndexes[i] << " ";
+    }
+    std::cout << std::endl;
+
     // Remove the unused vertices from tempVertData.
-    std::cout << "Removing unused vertices from the VBO..." << std::endl;
     for(int i = 0; i < unusedVerticeIndexes.size(); i++){
         tempVertData.erase(tempVertData.begin() + unusedVerticeIndexes[i]);
         // Shift the indices of the EBO vector.
-        for(int j = 0; j < this->EBO.size(); j++){
-            if(this->EBO[j] > unusedVerticeIndexes[i]){
-                this->EBO[j]--;
-            }
+        for(int j = unusedVerticeIndexes[i]; j < this->EBO.size(); j++){
+            this->EBO[j]--;
+        }
+        // Percentile progress bar - round to the nearest integer.
+        if(i % 10 == 0){
+            std::cout << "\rRemoving unused vertices from the VBO... " << std::fixed << std::setprecision(0) << (i / (float)unusedVerticeIndexes.size()) * 100 << "%";
         }
     }
+    std::cout << "\rRemoving unused vertices from the VBO... 100%" << std::endl;
     std::cout << "Removed " << unusedVerticeIndexes.size() << " unused vertices from the temporary VBO" << std::endl;
     std::cout << "Moving std::vector<std::vector<float>> tempVertData into std::vector<float> this->VBO" << std::endl;
-    unsigned int oldVboSize = this->VBO.size();
+
     // Assemble new VBO from the new vector of vectors.
+    unsigned int oldVboSize = this->VBO.size();
     this->VBO.resize(tempVertData.size() * this->vertSize);
     for(int i = 0; i < tempVertData.size(); i++){
         for(int j = 0; j < this->vertSize; j++){
