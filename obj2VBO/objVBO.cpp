@@ -74,8 +74,7 @@ void objVBO::object::printVector(const std::vector<T>& data){
 
 
 void objVBO::object::assembleVBO(){
-    std::cout << "==========================================================" << std::endl;
-    std::cout << "Assembling VBO:" << std::endl;
+    std::cout << "=== Assembling VBO:" << std::endl;
     // Check for the presence of position, normal, and texture coordinates:
     std::cout << "Checking for presence of position, normal, and texture coordinates..." << std::endl;
     if(positions.size() == 0 || normals.size() == 0 || textureCoords.size() == 0){ // !!!!!! HARD CODED !!!!!!
@@ -107,6 +106,7 @@ void objVBO::object::assembleVBO(){
     std::vector<std::vector<float>> tempVBO; // its easier to work with a vector of vectors, then turn it into a flat vector later on.
     std::vector<float> tempVert;
     tempVert.resize(this->vertSize);
+    unsigned int duplicatesFound = 0;
     for(int i=0; i<this->indices.size(); i++){
         // 1: Assemble a vertex based on this->indices[i], Store the vertex data in the tempVert vector.
         tempVert[0] = this->positions[((this->indices[i].positionIndex-1)*3) + 0];
@@ -125,6 +125,7 @@ void objVBO::object::assembleVBO(){
                 this->EBO[i] = j;
                 isDuplicate = true;
                 duplicateIndex = j;
+                duplicatesFound++;
                 break;
             }
         }
@@ -143,6 +144,8 @@ void objVBO::object::assembleVBO(){
         }
     }
     std::cout << "\rBuilding tempVBO/EBO... 100%" << std::endl;
+    std::cout << "Found " << duplicatesFound << " duplicate vertices during VBO construction." << std::endl;
+    std::cout << "Final VBO vertex count: " << tempVBO.size() << std::endl;
     std::cout << "Copying tempVBO into this->VBO..." << std::endl;
     // Assemble the VBO from the tempVBO vector.
     this->VBO.resize(tempVBO.size()*vertSize);
@@ -157,8 +160,7 @@ void objVBO::object::assembleVBO(){
 
 
 objVBO::object::object(const std::string fileName){
-    std::cout << "==========================================================" << std::endl;
-    std::cout << "Reading obj file:" << fileName << std::endl;
+    std::cout << "=== Reading obj file:" << fileName << std::endl;
     std::cout << "Reading positions..." << std::endl;
     readObjValues(fileName, "v ", 3, positions);
     std::cout << "Reading normals..." << std::endl;
@@ -173,8 +175,7 @@ objVBO::object::object(const std::string fileName){
 
 
 void objVBO::object::writeVBO(const std::string filename){
-    std::cout << "==========================================================" << std::endl;
-    std::cout << "Writing VBO to file:" << std::endl;
+    std::cout << "=== Writing VBO to file:" << std::endl;
     std::ofstream file;
     file.open(filename + ".vbo");
     // Write the entire VBO onto the first line of the file
@@ -188,8 +189,7 @@ void objVBO::object::writeVBO(const std::string filename){
 
 
 void objVBO::object::writeEBO(const std::string filename){
-    std::cout << "==========================================================" << std::endl;
-    std::cout << "Writing EBO to file:" << std::endl;
+    std::cout << "=== Writing EBO to file:" << std::endl;
     std::ofstream file;
     file.open(filename + ".ebo");
     // Write the entire EBO onto the first line of the file

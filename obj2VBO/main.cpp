@@ -24,6 +24,5 @@ int main(int argc, char** argv){
     objVBO::object obj(input);
     obj.writeVBO(output);
     obj.writeEBO(output);
-    std::cout << "==========================================================" << std::endl;
     return 0;
 }
