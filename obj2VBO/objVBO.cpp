@@ -230,48 +230,25 @@ void objVBO::object::optimiseVBO(){
     std::sort(sortedTempVertData.begin(), sortedTempVertData.end()); // Sort the data.
 
     // Check for duplicates:
-    unsigned int duplicates = 0;
-    std::vector<unsigned int> unusedVerticeIndexes;
     for(int i = 0; i < sortedTempVertData.size(); i++){
         if(sortedTempVertData[i] == sortedTempVertData[i+1]){
-            this->EBO[sortPerm[i+1]] = this->EBO[sortPerm[i]];
-            unusedVerticeIndexes.push_back(sortPerm[i+1]);
-            std::cout << "Set this->EBO[" << sortPerm[i+1] << "] to this->EBO[" << sortPerm[i] << "]" << std::endl;
-            duplicates++;
-        }
-    }
-    
-    std::sort(unusedVerticeIndexes.begin(), unusedVerticeIndexes.end(), std::greater<unsigned int>()); // Sort the list of unused vertices in descending order.
-    // Remove the duplicates from the unused vertices list by checking if the index of the current unused vertex is the same as the next unused vertex.
-    for(int i = 0; i < unusedVerticeIndexes.size(); i++){
-        if(unusedVerticeIndexes[i] == unusedVerticeIndexes[i + 1]){
-            unusedVerticeIndexes.erase(unusedVerticeIndexes.begin() + i);
-            i--;
-        }
-    }
-    std::cout << "Found " << unusedVerticeIndexes.size() << " unused vertices." << std::endl;
-    // DEBUG: print the unused vertices.
-    for(int i = 0; i < unusedVerticeIndexes.size(); i++){
-        std::cout << unusedVerticeIndexes[i] << " ";
-    }
-    std::cout << std::endl;
+            unsigned int x = sortPerm[i+1]; // This is the index of the vertex sortedTempVertData[i+1] in the unsorted tempVertData
+            unsigned int y = sortPerm[i]; // This is the index of the vertex sortedTempVertData[i] in the unsorted tempVertData
+            unsigned int tempEBO = this->EBO[x]; // This is required so we know which indices need to have 1 subtracted from them later
 
-    // Remove the unused vertices from tempVertData.
-    for(int i = 0; i < unusedVerticeIndexes.size(); i++){
-        tempVertData.erase(tempVertData.begin() + unusedVerticeIndexes[i]);
-        // Shift the indices of the EBO vector.
-        for(int j = unusedVerticeIndexes[i]; j < this->EBO.size(); j++){
-            this->EBO[j]--;
-        }
-        // Percentile progress bar - round to the nearest integer.
-        if(i % 10 == 0){
-            std::cout << "\rRemoving unused vertices from the VBO... " << std::fixed << std::setprecision(0) << (i / (float)unusedVerticeIndexes.size()) * 100 << "%";
+            tempVertData.erase(tempVertData.begin() + this->EBO[x]);
+            this->EBO[x] = this->EBO[y];
+
+            for(auto& e : this->EBO){
+                if(e > tempEBO){
+                    e--;
+                }
+            }
         }
     }
-    std::cout << "\rRemoving unused vertices from the VBO... 100%" << std::endl;
-    std::cout << "Removed " << unusedVerticeIndexes.size() << " unused vertices from the temporary VBO" << std::endl;
+    std::cout << "Removed unused vertices from the VBO... 100%" << std::endl;
+
     std::cout << "Moving std::vector<std::vector<float>> tempVertData into std::vector<float> this->VBO" << std::endl;
-
     // Assemble new VBO from the new vector of vectors.
     unsigned int oldVboSize = this->VBO.size();
     this->VBO.resize(tempVertData.size() * this->vertSize);
