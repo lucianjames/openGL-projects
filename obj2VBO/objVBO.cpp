@@ -234,8 +234,9 @@ void objVBO::object::optimiseVBO(){
     std::vector<unsigned int> unusedVerticeIndexes;
     for(int i = 0; i < sortedTempVertData.size(); i++){
         if(sortedTempVertData[i] == sortedTempVertData[i+1]){
-            this->EBO[sortPerm[i]] = this->EBO[sortPerm[i+1]];
-            unusedVerticeIndexes.push_back(sortPerm[i]);
+            this->EBO[sortPerm[i+1]] = this->EBO[sortPerm[i]];
+            unusedVerticeIndexes.push_back(sortPerm[i+1]);
+            std::cout << "Set this->EBO[" << sortPerm[i+1] << "] to this->EBO[" << sortPerm[i] << "]" << std::endl;
             duplicates++;
         }
     }
