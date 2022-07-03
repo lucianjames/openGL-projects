@@ -110,33 +110,66 @@ void objVBO::object::assembleVBO(){
         throw std::runtime_error("Error: Object does not have all required data.");
     }
 
+
     // Create a VBO with all vertex data (expand the indices out to the full number of vertices)
     // Set indices to count up from 0 to the number of vertices. (This can be optimised later on)
     this->VBO.clear();
     this->vertSize = 3 + 3 + 2; // 3 floats for position, 3 floats for normal, 2 floats for texture coordinate. !!!!!! HARD CODED !!!!!!
-    this->VBO.resize(vertSize * this->indices.size()); // Resize the VBO to the correct size.
     this->EBO.clear();
     this->EBO.resize(this->indices.size()); // Resize the EBO to the correct size.
-    std::cout << "Creating VBO..." << std::endl;
-    for(int i=0; i < this->VBO.size() / vertSize; i++){ // !!!!!! HARD CODED !!!!!!
-        // Read position data from the indices.
-        this->VBO[(i * vertSize) + 0] = positions[((this->indices[i].positionIndex-1) * 3) + 0]; // The -1 is because the obj file indices start at 1, not 0. (Which is fucking retarded)
-        this->VBO[(i * vertSize) + 1] = positions[((this->indices[i].positionIndex-1) * 3) + 1];
-        this->VBO[(i * vertSize) + 2] = positions[((this->indices[i].positionIndex-1) * 3) + 2];
-        // Read normal data
-        this->VBO[(i * vertSize) + 3] = normals[((this->indices[i].normalIndex-1) * 3) + 0];
-        this->VBO[(i * vertSize) + 4] = normals[((this->indices[i].normalIndex-1) * 3) + 1];
-        this->VBO[(i * vertSize) + 5] = normals[((this->indices[i].normalIndex-1) * 3) + 2];
-        // Read texCoord data
-        this->VBO[(i * vertSize) + 6] = textureCoords[((this->indices[i].textureIndex-1) * 2) + 0];
-        this->VBO[(i * vertSize) + 7] = textureCoords[((this->indices[i].textureIndex-1) * 2) + 1];
+
+    // 1: Assemble a vertex based on this->indices[i], Store the vertex data in the tempVert vector.
+    // 2: Check if the vertex data is a duplicate of a vertex which already exists in the VBO. Just push the index of the existing vertex onto the EBO.
+    // 3: If the vertex is a new vertex, push the vertex data onto the VBO and push the index of the new vertex onto the EBO.
+    std::vector<std::vector<float>> tempVBO; // its easier to work with a vector of vectors, then turn it into a flat vector later on.
+    std::vector<float> tempVert;
+    tempVert.resize(this->vertSize);
+    for(int i=0; i<this->indices.size(); i++){
+        // 1: Assemble a vertex based on this->indices[i], Store the vertex data in the tempVert vector.
+        tempVert[0] = this->positions[((this->indices[i].positionIndex-1)*3) + 0];
+        tempVert[1] = this->positions[((this->indices[i].positionIndex-1)*3) + 1];
+        tempVert[2] = this->positions[((this->indices[i].positionIndex-1)*3) + 2];
+        tempVert[3] = this->normals[((this->indices[i].normalIndex-1)*3) + 0];
+        tempVert[4] = this->normals[((this->indices[i].normalIndex-1)*3) + 1];
+        tempVert[5] = this->normals[((this->indices[i].normalIndex-1)*3) + 2];
+        tempVert[6] = this->textureCoords[((this->indices[i].textureIndex-1)*2) + 0];
+        tempVert[7] = this->textureCoords[((this->indices[i].textureIndex-1)*2) + 1];
+        // 2: Check if the vertex data is a duplicate of a vertex which already exists in the VBO. Just push the index of the existing vertex onto the EBO.
+        bool isDuplicate = false;
+        unsigned int duplicateIndex = 0;
+        for(int j=0; j<tempVBO.size(); j++){
+            if(tempVBO[j] == tempVert){
+                this->EBO[i] = j;
+                isDuplicate = true;
+                duplicateIndex = j;
+                break;
+            }
+        }
+        // 3: If the vertex is a new vertex, push the vertex data onto the VBO and push the index of the new vertex onto the EBO.
+        if(!isDuplicate){
+            tempVBO.push_back(tempVert);
+            this->EBO[i] = tempVBO.size()-1;
+        }
+        // 4: If the vertex is a duplicate, push the index of the existing vertex onto the EBO.
+        else{
+            this->EBO[i] = duplicateIndex;
+        }
+        
+        // Progress bar using \r
+        if(i%1000 == 0){
+            std::cout << "\rBuilding VBO/EBO..." << std::fixed << std::setprecision(0) << (i / (float)this->indices.size()) * 100 << "%";
+        }
     }
-    // Create the basic indices (just count up lol)
-    std::cout << "Creating EBO..." << std::endl;
-    for(int i = 0; i < this->VBO.size() / vertSize; i++){
-        this->EBO[i] = i;
+    std::cout << "\r Complete." << std::endl;
+
+    // Assemble the VBO from the tempVBO vector.
+    this->VBO.resize(tempVBO.size()*vertSize);
+    for(int i=0; i<tempVBO.size(); i++){
+        for(int j=0; j<vertSize; j++){
+            this->VBO[i*vertSize + j] = tempVBO[i][j];
+        }
     }
-    std::cout << "VBO+EBO Assembled." << std::endl;
+    std::cout << "VBO assembled." << std::endl;
 }
 
 
@@ -155,71 +188,6 @@ objVBO::object::object(const std::string fileName){
     std::cout << "Finished reading obj file." << std::endl;
     assembleVBO();
 }
-
-
-
-void objVBO::object::optimiseVBO(){
-    // First break the data into a vector of vectors with size this->vertSize.
-    std::cout << "==========================================================" << std::endl;
-    std::cout << "Optimising VBO:" << std::endl;
-    std::cout << "Creating required temoporary data..." << std::endl;
-    std::vector<std::vector<float>> tempVertData;
-    tempVertData.resize(this->VBO.size() / this->vertSize);
-    for(int i = 0; i < tempVertData.size(); i++){
-        tempVertData[i].resize(this->vertSize);
-    }
-    // Fill the new vector with the data.
-    for(int i = 0; i < this->VBO.size(); i++){
-        tempVertData[i / this->vertSize][i % this->vertSize] = this->VBO[i];
-    }
-    // Create a sorted copy of tempVertData.
-    std::vector<std::vector<float>> sortedTempVertData;
-    sortedTempVertData.resize(tempVertData.size());
-    for(int i = 0; i < tempVertData.size(); i++){
-        sortedTempVertData[i].resize(tempVertData[i].size());
-    }
-    for(int i = 0; i < tempVertData.size(); i++){
-        for(int j = 0; j < tempVertData[i].size(); j++){
-            sortedTempVertData[i][j] = tempVertData[i][j];
-        }
-    }
-    // Sort it:
-    auto sortPerm = sort_permutation(sortedTempVertData.cbegin(), sortedTempVertData.cend()); // stores an index which lets us track down the original position of the vertex before sorting.
-    std::sort(sortedTempVertData.begin(), sortedTempVertData.end()); // Sort the data.
-
-    // Check for duplicates:
-    std::cout << "Searching for duplicate vertices inside the VBO..." << std::endl;
-    for(int i = 0; i < sortedTempVertData.size(); i++){
-        if(sortedTempVertData[i] == sortedTempVertData[i+1]){
-            unsigned int tempEBO = this->EBO[sortPerm[i+1]]; // This is required so we know which indices need to have 1 subtracted from them later
-            tempVertData.erase(tempVertData.begin() + this->EBO[sortPerm[i+1]]); // Get rid of the duplicate vertex
-            // Modify EBO to match the modified VBO data:
-            this->EBO[sortPerm[i+1]] = this->EBO[sortPerm[i]];
-            for(auto& e : this->EBO){ // Fucking n^2 probably asjfuhigflhfgbnj shit fuck fuck shit slow shit
-                if(e > tempEBO){
-                    e--;
-                }
-            }
-        }
-        if(i % 1000 == 0){
-            std::cout << "\rSearching for and removing duplicates... " << std::fixed << std::setprecision(0) << (i / (float)sortedTempVertData.size()) * 100 << "% | " << i << " verts checked so far.";
-        }
-    }
-    std::cout << "\rSearching for and removing duplicates... 100% | All verts checked.                         " << std::endl; // Hacky overwrite of previous text lol
-    std::cout << "Copying cleaned tempVBO into main VBO..." << std::endl;
-    // Assemble new VBO from the new vector of vectors.
-    unsigned int oldVboSize = this->VBO.size();
-    this->VBO.resize(tempVertData.size() * this->vertSize);
-    for(int i = 0; i < tempVertData.size(); i++){
-        for(int j = 0; j < this->vertSize; j++){
-            this->VBO[i * this->vertSize + j] = tempVertData[i][j];
-        }
-    }
-    unsigned int removed = oldVboSize - this->VBO.size();
-    std::cout << "Removed " << removed << " Items from VBO (" << removed/(3+3+2) << " vertices)" << std::endl; 
-    std::cout << "Optimisation complete." << std::endl;
-}
-
 
 
 void objVBO::object::writeVBO(const std::string filename){

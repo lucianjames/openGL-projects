@@ -21,7 +21,6 @@ int main(int argc, char** argv){
     std::string output = argv[2]; // argv[1] is the input file.
 
     objVBO::object obj(input);
-    obj.optimiseVBO();
     obj.writeVBO(output);
     obj.writeEBO(output);
     std::cout << "==========================================================" << std::endl;
