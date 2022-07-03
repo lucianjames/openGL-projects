@@ -157,11 +157,11 @@ void objVBO::object::assembleVBO(){
         
         // Progress bar using \r
         if(i%1000 == 0){
-            std::cout << "\rBuilding VBO/EBO..." << std::fixed << std::setprecision(0) << (i / (float)this->indices.size()) * 100 << "%";
+            std::cout << "\rBuilding tempVBO/EBO..." << std::fixed << std::setprecision(0) << (i / (float)this->indices.size()) * 100 << "%";
         }
     }
-    std::cout << "\r Complete." << std::endl;
-
+    std::cout << "\rtempVBO/EBO fully built.                   " << std::endl;
+    std::cout << "Copying tempVBO into this->VBO..." << std::endl;
     // Assemble the VBO from the tempVBO vector.
     this->VBO.resize(tempVBO.size()*vertSize);
     for(int i=0; i<tempVBO.size(); i++){
