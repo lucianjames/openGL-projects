@@ -55,6 +55,21 @@ void objVBO::readObjIndices(const std::string fileName, std::vector<vertexIndice
 
 
 
+template <typename T> // This function provides indices which can be used to "undo" a sort. (Basically used to keep track of where everything has been moved to when std::sort is used)
+auto objVBO::sort_permutation(T cbegin, T cend) {
+    auto len = std::distance(cbegin, cend);
+    std::vector<size_t> perm(len);
+    std::iota(perm.begin(), perm.end(), 0U);
+    std::sort(
+        perm.begin(), 
+        perm.end(), 
+        [&](const size_t& a, const size_t& b){return *(cbegin+a) < *(cbegin+b);}
+    );
+    return perm;
+}
+
+
+
 
 
 
@@ -74,66 +89,9 @@ void objVBO::object::printVector(const std::vector<T>& data){
 
 
 
-objVBO::object::object(const std::string fileName){
-    std::cout << "==========================================================" << std::endl;
-    std::cout << "Reading obj file: " << fileName << std::endl;
-    std::cout << "Reading positions..." << std::endl;
-    readObjValues(fileName, "v ", 3, positions);
-    std::cout << "Reading normals..." << std::endl;
-    readObjValues(fileName, "vn", 3, normals);
-    std::cout << "Reading texture coordinates..." << std::endl;
-    readObjValues(fileName, "vt", 2, textureCoords);
-    std::cout << "Reading indices..." << std::endl;
-    readObjIndices(fileName, indices);
-    std::cout << "Finished reading obj file." << std::endl;
-}
-
-
-
-void objVBO::object::debugPrintData(){
-    std::cout << "==========================================================" << std::endl;
-    std::cout << "Printing debugging data..." << std::endl;
-    // Print position values
-    std::cout << "Positions: " << std::endl;
-    printVector(positions);
-    // Print normal values
-    std::cout << "Normals: " << std::endl;
-    printVector(normals);
-    // Print texture coordinate values
-    std::cout << "Texture Coords: " << std::endl;
-    printVector(textureCoords);
-    // Print vertex indices
-    std::cout << "Vertex Indices: " << std::endl;
-    for(int i = 0; i < indices.size(); i++){
-        std::cout << indices[i].positionIndex << ", ";
-        // New line every 3 indices.
-        if(i % 3 == 2){
-            std::cout << std::endl;
-        }
-    }
-    std::cout << "Normal Indices: " << std::endl;
-    for(int i = 0; i < indices.size(); i++){
-        std::cout << indices[i].normalIndex << ", ";
-        // New line every 3 indices.
-        if(i % 3 == 2){
-            std::cout << std::endl;
-        }
-    }
-    std::cout << "Texture Indices: " << std::endl;
-    for(int i = 0; i < indices.size(); i++){
-        std::cout << indices[i].textureIndex << ", ";
-        // New line every 3 indices.
-        if(i % 3 == 2){
-            std::cout << std::endl;
-        }
-    }
-}
-
-
-
 void objVBO::object::assembleVBO(){
     std::cout << "==========================================================" << std::endl;
-    std::cout << "Assembling VBO..." << std::endl;
+    std::cout << "Assembling VBO:" << std::endl;
     // Check for the presence of position, normal, and texture coordinates:
     std::cout << "Checking for presence of position, normal, and texture coordinates..." << std::endl;
     if(positions.size() == 0 || normals.size() == 0 || textureCoords.size() == 0){ // !!!!!! HARD CODED !!!!!!
@@ -183,10 +141,28 @@ void objVBO::object::assembleVBO(){
 
 
 
+objVBO::object::object(const std::string fileName){
+    std::cout << "==========================================================" << std::endl;
+    std::cout << "Reading obj file:" << fileName << std::endl;
+    std::cout << "Reading positions..." << std::endl;
+    readObjValues(fileName, "v ", 3, positions);
+    std::cout << "Reading normals..." << std::endl;
+    readObjValues(fileName, "vn", 3, normals);
+    std::cout << "Reading texture coordinates..." << std::endl;
+    readObjValues(fileName, "vt", 2, textureCoords);
+    std::cout << "Reading indices..." << std::endl;
+    readObjIndices(fileName, indices);
+    std::cout << "Finished reading obj file." << std::endl;
+    assembleVBO();
+}
+
+
+
 void objVBO::object::optimiseVBO(){
     // First break the data into a vector of vectors with size this->vertSize.
     std::cout << "==========================================================" << std::endl;
-    std::cout << "Optimising VBO..." << std::endl;
+    std::cout << "Optimising VBO:" << std::endl;
+    std::cout << "Creating required temoporary data..." << std::endl;
     std::vector<std::vector<float>> tempVertData;
     tempVertData.resize(this->VBO.size() / this->vertSize);
     for(int i = 0; i < tempVertData.size(); i++){
@@ -196,54 +172,51 @@ void objVBO::object::optimiseVBO(){
     for(int i = 0; i < this->VBO.size(); i++){
         tempVertData[i / this->vertSize][i % this->vertSize] = this->VBO[i];
     }
-    // Get the indices of the vertices which are duplicate.
-    // This algorithm is O(n^2), need to replace it with a better algorithm later.
-    std::cout << "Searching for duplicate vertices inside the VBO..." << std::endl;
-    unsigned int duplicates = 0;
-    std::vector<unsigned int> unusedVerticeIndexes;
+    // Create a sorted copy of tempVertData.
+    std::vector<std::vector<float>> sortedTempVertData;
+    sortedTempVertData.resize(tempVertData.size());
     for(int i = 0; i < tempVertData.size(); i++){
-        for(int j = i + 1; j < tempVertData.size(); j++){
-            if(tempVertData[i] == tempVertData[j]){
-                // If the two vertices are the same, replace the index of the second one with the index of the first one.
-                duplicates++;
-                this->EBO[j] = this->EBO[i]; // Assumes EBO counts up from 0 by 1 to n.
-                unusedVerticeIndexes.push_back(j); // Add the index of the second one to the list of unused vertices.
+        sortedTempVertData[i].resize(tempVertData[i].size());
+    }
+    for(int i = 0; i < tempVertData.size(); i++){
+        for(int j = 0; j < tempVertData[i].size(); j++){
+            sortedTempVertData[i][j] = tempVertData[i][j];
+        }
+    }
+    // Sort it:
+    auto sortPerm = sort_permutation(sortedTempVertData.cbegin(), sortedTempVertData.cend()); // stores an index which lets us track down the original position of the vertex before sorting.
+    std::sort(sortedTempVertData.begin(), sortedTempVertData.end()); // Sort the data.
+
+    // Check for duplicates:
+    std::cout << "Searching for duplicate vertices inside the VBO..." << std::endl;
+    for(int i = 0; i < sortedTempVertData.size(); i++){
+        if(sortedTempVertData[i] == sortedTempVertData[i+1]){
+            unsigned int tempEBO = this->EBO[sortPerm[i+1]]; // This is required so we know which indices need to have 1 subtracted from them later
+            tempVertData.erase(tempVertData.begin() + this->EBO[sortPerm[i+1]]); // Get rid of the duplicate vertex
+            // Modify EBO to match the modified VBO data:
+            this->EBO[sortPerm[i+1]] = this->EBO[sortPerm[i]];
+            for(auto& e : this->EBO){ // Fucking n^2 probably asjfuhigflhfgbnj shit fuck fuck shit slow shit
+                if(e > tempEBO){
+                    e--;
+                }
             }
         }
-    }
-    // Sort the list of unused vertices in descending order.
-    std::sort(unusedVerticeIndexes.begin(), unusedVerticeIndexes.end(), std::greater<unsigned int>());
-    // Remove the duplicates from the unused vertices list by checking if the index of the current unused vertex is the same as the next unused vertex.
-    for(int i = 0; i < unusedVerticeIndexes.size(); i++){
-        if(unusedVerticeIndexes[i] == unusedVerticeIndexes[i + 1]){
-            unusedVerticeIndexes.erase(unusedVerticeIndexes.begin() + i);
-            i--;
+        if(i % 1000 == 0){
+            std::cout << "\rSearching for and removing duplicates... " << std::fixed << std::setprecision(0) << (i / (float)sortedTempVertData.size()) * 100 << "% | " << i << " verts checked so far.";
         }
     }
-    std::cout << "Found " << unusedVerticeIndexes.size() << " unused vertices." << std::endl;
-    // Remove the unused vertices from tempVertData.
-    std::cout << "Removing unused vertices from the VBO..." << std::endl;
-    for(int i = 0; i < unusedVerticeIndexes.size(); i++){
-        tempVertData.erase(tempVertData.begin() + unusedVerticeIndexes[i]);
-        // Shift the indices of the EBO vector.
-        for(int j = 0; j < this->EBO.size(); j++){
-            if(this->EBO[j] > unusedVerticeIndexes[i]){
-                this->EBO[j]--;
-            }
-        }
-    }
-    std::cout << "Removed " << unusedVerticeIndexes.size() << " unused vertices from the temporary VBO" << std::endl;
-    std::cout << "Moving std::vector<std::vector<float>> tempVertData into std::vector<float> this->VBO" << std::endl;
-    unsigned int oldVboSize = this->VBO.size();
+    std::cout << "\rSearching for and removing duplicates... 100% | All verts checked.                         " << std::endl; // Hacky overwrite of previous text lol
+    std::cout << "Copying cleaned tempVBO into main VBO..." << std::endl;
     // Assemble new VBO from the new vector of vectors.
+    unsigned int oldVboSize = this->VBO.size();
     this->VBO.resize(tempVertData.size() * this->vertSize);
     for(int i = 0; i < tempVertData.size(); i++){
         for(int j = 0; j < this->vertSize; j++){
             this->VBO[i * this->vertSize + j] = tempVertData[i][j];
         }
     }
-    std::cout << "Old VBO.size(): " << oldVboSize << std::endl;
-    std::cout << "New VBO.size(): " << this->VBO.size() << std::endl;
+    unsigned int removed = oldVboSize - this->VBO.size();
+    std::cout << "Removed " << removed << " Items from VBO (" << removed/(3+3+2) << " vertices)" << std::endl; 
     std::cout << "Optimisation complete." << std::endl;
 }
 
@@ -251,7 +224,7 @@ void objVBO::object::optimiseVBO(){
 
 void objVBO::object::writeVBO(const std::string filename){
     std::cout << "==========================================================" << std::endl;
-    std::cout << "Writing VBO to file..." << std::endl;
+    std::cout << "Writing VBO to file:" << std::endl;
     std::ofstream file;
     file.open(filename + ".vbo");
     // Write the entire VBO onto the first line of the file
@@ -266,7 +239,7 @@ void objVBO::object::writeVBO(const std::string filename){
 
 void objVBO::object::writeEBO(const std::string filename){
     std::cout << "==========================================================" << std::endl;
-    std::cout << "Writing EBO to file..." << std::endl;
+    std::cout << "Writing EBO to file:" << std::endl;
     std::ofstream file;
     file.open(filename + ".ebo");
     // Write the entire EBO onto the first line of the file
