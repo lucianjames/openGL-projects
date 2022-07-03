@@ -4,13 +4,12 @@
 
 template<typename T> // This function is templated, but I dont think i actually need it to be lol. Whatever
 void objVBO::readObjValues(const std::string fileName, const std::string startTag, const int dataCount, std::vector<T>& data){
-    // Clear the data vector.
-    data.clear();
+    data.clear(); // Clear the data vector.
     std::ifstream file(fileName);
     std::string line;
     while(std::getline(file, line)){ // 1: Read a line from the file
         if(line.substr(0,startTag.size()) == startTag){ // 2: Check if it starts with the startTag
-            // 3: If so, break it down into <dataCount> ints and add them to the data vector:
+            // 3: If it does, read the data from the line and push it into the data vector.
             std::stringstream ss(line); 
             std::string token;
             std::getline(ss, token, ' '); // Skip the token at the beginning because it is not a number that we want.
@@ -28,12 +27,12 @@ void objVBO::readObjValues(const std::string fileName, const std::string startTa
 
 // Read specifically the indices from the obj file. Use a struct to make it easier to use them later on.
 void objVBO::readObjIndices(const std::string fileName, std::vector<vertexIndices>& data){
-    data.clear();
+    data.clear(); // Clear the data vector.
     std::ifstream file(fileName);
     std::string line;
     while(std::getline(file, line)){ // 1: Read a line from the file
         if(line.substr(0,2) == "f "){ // 2: Check if it starts with the startTag
-            // 3: If so, break it down into <dataCount> ints and add them to the data vector:
+            // 3: If it does, read the data from the line and push it into the data vector.
             std::stringstream ss(line); 
             std::string token;
             std::getline(ss, token, ' '); // Skip the token at the beginning because it is not a number that we want.
@@ -64,7 +63,7 @@ void objVBO::readObjIndices(const std::string fileName, std::vector<vertexIndice
 
 
 
-template<typename T>
+template<typename T> // Simple function to print the contents of a vector.
 void objVBO::object::printVector(const std::vector<T>& data){
     for(int i = 0; i < data.size(); i++){
         std::cout << data[i] << " ";
@@ -91,18 +90,17 @@ void objVBO::object::assembleVBO(){
         if(textureCoords.size() == 0){
             std::cout << "Missing texture coordinate data" << std::endl;
         }
-        // Throw runtime error
-        throw std::runtime_error("Error: Object does not have all required data.");
+        std::cout << "Ensure the .obj file contains position, normal, and texture coordinates." << std::endl;
+        std::cout << "This error can also be caused by a non-triangulated .obj file." << std::endl;
+        // Exit the program.
+        std::cout << "Exiting program." << std::endl;
+        exit(1);
     }
-
-
     // Create a VBO with all vertex data (expand the indices out to the full number of vertices)
     // Set indices to count up from 0 to the number of vertices. (This can be optimised later on)
-    this->VBO.clear();
     this->vertSize = 3 + 3 + 2; // 3 floats for position, 3 floats for normal, 2 floats for texture coordinate. !!!!!! HARD CODED !!!!!!
-    this->EBO.clear();
     this->EBO.resize(this->indices.size()); // Resize the EBO to the correct size.
-
+    // ====== Actually start assembling the VBO ======
     // 1: Assemble a vertex based on this->indices[i], Store the vertex data in the tempVert vector.
     // 2: Check if the vertex data is a duplicate of a vertex which already exists in the VBO. Just push the index of the existing vertex onto the EBO.
     // 3: If the vertex is a new vertex, push the vertex data onto the VBO and push the index of the new vertex onto the EBO.
@@ -122,7 +120,7 @@ void objVBO::object::assembleVBO(){
         // 2: Check if the vertex data is a duplicate of a vertex which already exists in the VBO. Just push the index of the existing vertex onto the EBO.
         bool isDuplicate = false;
         unsigned int duplicateIndex = 0;
-        for(int j=0; j<tempVBO.size(); j++){
+        for(int j=0; j<tempVBO.size(); j++){ // Maybe this could be sped up by pre-computing a few things?
             if(tempVBO[j] == tempVert){
                 this->EBO[i] = j;
                 isDuplicate = true;
@@ -139,13 +137,12 @@ void objVBO::object::assembleVBO(){
         else{
             this->EBO[i] = duplicateIndex;
         }
-        
-        // Progress bar using \r
-        if(i%1000 == 0){
-            std::cout << "\rBuilding tempVBO/EBO..." << std::fixed << std::setprecision(0) << (i / (float)this->indices.size()) * 100 << "%";
+        // Display the progress of the VBO assembly.
+        if(i%128 == 0){
+            std::cout << "\rBuilding tempVBO/EBO... " << std::fixed << std::setprecision(0) << (i / (float)this->indices.size()) * 100 << "%";
         }
     }
-    std::cout << "\rtempVBO/EBO fully built.                   " << std::endl;
+    std::cout << "\rBuilding tempVBO/EBO... 100%" << std::endl;
     std::cout << "Copying tempVBO into this->VBO..." << std::endl;
     // Assemble the VBO from the tempVBO vector.
     this->VBO.resize(tempVBO.size()*vertSize);
