@@ -20,6 +20,7 @@ int main(int argc, char** argv){
     std::string input = argv[1]; // argv[0] is the program name.
     std::string output = argv[2]; // argv[1] is the input file.
 
+    // Read the input file, assemble the VBO, and write the output files.
     objVBO::object obj(input);
     obj.writeVBO(output);
     obj.writeEBO(output);
