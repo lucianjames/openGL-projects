@@ -19,7 +19,6 @@ namespace objVBO{
 
     template<typename T> void readObjValues(const std::string fileName, const std::string startTag, const int dataCount, std::vector<T>& data);
     void readObjIndices(const std::string fileName, std::vector<vertexIndices>& data);
-    template <typename T> auto sort_permutation(T cbegin, T cend);
 
     class object{
     private:

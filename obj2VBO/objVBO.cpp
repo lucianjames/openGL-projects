@@ -55,21 +55,6 @@ void objVBO::readObjIndices(const std::string fileName, std::vector<vertexIndice
 
 
 
-template <typename T> // This function provides indices which can be used to "undo" a sort. (Basically used to keep track of where everything has been moved to when std::sort is used)
-auto objVBO::sort_permutation(T cbegin, T cend) {
-    auto len = std::distance(cbegin, cend);
-    std::vector<size_t> perm(len);
-    std::iota(perm.begin(), perm.end(), 0U);
-    std::sort(
-        perm.begin(), 
-        perm.end(), 
-        [&](const size_t& a, const size_t& b){return *(cbegin+a) < *(cbegin+b);}
-    );
-    return perm;
-}
-
-
-
 
 
 
