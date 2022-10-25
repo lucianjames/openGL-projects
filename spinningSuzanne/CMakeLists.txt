@@ -11,6 +11,7 @@ find_package(glm REQUIRED)
 # Not sure if these are required or not:
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${GLFW3_INCLUDE_DIR})
+include_directories(${PROJECT_SOURCE_DIR})
 
 set(SOURCE
     ${SOURCE}
@@ -28,7 +29,7 @@ set(SOURCE
 add_executable(main ${SOURCE}) # Add the source files to the executable
 
 target_link_libraries(main 
-    glfw3 GL X11 pthread Xrandr Xi dl)
+    glfw GL X11 pthread Xrandr Xi dl)
 
 # Copy GLSL files over to the build directory
 add_custom_command(TARGET main POST_BUILD
