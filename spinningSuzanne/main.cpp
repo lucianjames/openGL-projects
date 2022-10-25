@@ -8,23 +8,23 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "initHelper.h"
-#include "shaderClass.h"
+#include "shader.h"
 #include "VBO.h"
-#include "VBO_layout.h"
+//#include "VBO_layout.h"
 #include "VAO.h"
 #include "EBO.h"
 #include "model.h"
 
-#include "obj.h"
+//#include "obj.h"
 
 int main(){
     // === Set up a GLFW window, and init GLAD ===
     char windowName[] = "3D spinning suzanne";
-    GLFWwindow* window = glInitHelper::setup(windowName); // Setup function exists just to move all the boilerplate crap out of sight
+    GLFWwindow* window = setup(windowName); // Setup function exists just to move all the boilerplate crap out of sight
     glEnable(GL_DEPTH_TEST); // Enable depth testing - emsures that objects are drawn in the right order
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe for model debugging
     
-    model suzanne;
+    model_EBO suzanne;
     suzanne.readVBO("../suzanne.vbo");
     suzanne.readEBO("../suzanne.ebo");
     suzanne.m_shader.createShader("GLSL/shader.vert.glsl", "GLSL/shader.frag.glsl");
