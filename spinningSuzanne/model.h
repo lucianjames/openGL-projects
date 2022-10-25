@@ -105,7 +105,7 @@ public:
         this->m_shader.use();
         this->m_vao.bind();
         this->m_ebo.bind();
-        glDrawElements(GL_TRIANGLES, this->m_layout.getStride(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, this->m_ebo.getSize(), GL_UNSIGNED_INT, nullptr);
     }
 
 };

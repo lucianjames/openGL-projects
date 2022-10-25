@@ -16,6 +16,7 @@ public:
     void bind(){
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ID);
     }
+    inline unsigned int getSize() const { return this->m_size; }
     ~EBO(){
         glDeleteBuffers(1, &this->ID);
     }
