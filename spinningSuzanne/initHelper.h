@@ -12,6 +12,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
 
 void initGLFW(){
     glfwInit();
+    // I should probably change how the version hints work because what if i want to use a different version?
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
